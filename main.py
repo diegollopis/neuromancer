@@ -15,7 +15,7 @@ class Controller:
         self.run()
 
     def do_repo_push(self, option: str):
-        message = input('Digite a mensagem do commit: ')
+        message = input('Commit message: ')
         message_formatted = f'{option}: {message}'
         self.action.do_git_steps(message_formatted)
 
@@ -24,11 +24,11 @@ class Controller:
         are_changes = self.action.status()
         
         if not is_git:
-            print('Não é um diretório git!')
+            print('Git not found!')
             return 
         
         if not are_changes:
-            print('Não há modificações no repo!')
+            print('There are no modifications in this repository!')
             return
 
         self.utils.clear_screen()
