@@ -7,11 +7,6 @@ class Controller:
     action = GitAction()
     utils = Utils()
 
-    def print_not_found_message(self, text: str):
-        print(text)
-        print()
-        return
-
     def show_helper(self):
         self.utils.clear_screen()
         Helper().print_helper()
@@ -20,7 +15,7 @@ class Controller:
 
     def do_repo_push(self, option: str):
         print()
-        message = input('Commit message: ')
+        message = input('>> Commit message: ')
         message_formatted = f'{option}: {message}'
         print()
         self.action.do_git_steps(message_formatted)
