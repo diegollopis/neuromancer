@@ -9,17 +9,21 @@ class GitAction:
         subprocess.run(list)
         self.utils.wait()
 
-    def check_git(self):
+    def check_is_git_detected(self):
         response = subprocess.run(['git', 'rev-parse', '--git-dir'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         return response.returncode == 0 
+    
+    def get_current_branch(self):
+        branch_name = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip().decode("utf-8")
+        return branch_name
 
-    def add(self):
+    def add_files(self):
         self.execute(['git', 'add', "."])
 
     def commit(self, message: str):
         self.execute(['git', 'commit', '-m', message])
 
-    def status(self):
+    def check_changed_files(self):
         response = subprocess.run(['git', 'ls-files', '-m', '-o', '--exclude-from=.gitignore'], capture_output=True, text=True)
         files_list = response.stdout.splitlines()
         return len(files_list) > 0
@@ -27,12 +31,8 @@ class GitAction:
     def push(self):
         branch_name = self.get_current_branch()
         self.execute(['git', 'push', '-u', 'origin', branch_name])
-
-    def get_current_branch(self):
-        branch_name = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip().decode("utf-8")
-        return branch_name
     
     def do_git_steps(self, message: str):
-        self.add()
+        self.add_files()
         self.commit(message)
         self.push()

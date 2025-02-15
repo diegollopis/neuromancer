@@ -20,8 +20,8 @@ class Controller:
         self.action.do_git_steps(message_formatted)
 
     def run(self):
-        is_git = self.action.check_git()
-        are_changes = self.action.status()
+        is_git = self.action.check_is_git_detected()
+        are_changes = self.action.check_changed_files()
         
         if not is_git:
             print('Git not found!')
