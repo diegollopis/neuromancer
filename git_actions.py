@@ -25,7 +25,7 @@ class GitAction:
         return len(files_list) > 0
 
     def push(self):
-        branch_name = self.getCurrentBranch()
+        branch_name = self.get_current_branch()
         self.execute(['git', 'push', '-u', 'origin', branch_name])
 
     def get_current_branch(self):
