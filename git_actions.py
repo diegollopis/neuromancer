@@ -5,7 +5,7 @@ class GitAction:
 
     utils = Utils()
 
-    def execute(self, list):
+    def execute(self, list: list):
         subprocess.run(list)
         self.utils.wait()
 
@@ -16,7 +16,7 @@ class GitAction:
     def add(self):
         self.execute(['git', 'add', "."])
 
-    def commit(self, message):
+    def commit(self, message: str):
         self.execute(['git', 'commit', '-m', message])
 
     def status(self):
@@ -32,7 +32,7 @@ class GitAction:
         branch_name = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip().decode("utf-8")
         return branch_name
     
-    def do_git_steps(self, message):
+    def do_git_steps(self, message: str):
         self.add()
         self.commit(message)
         self.push()

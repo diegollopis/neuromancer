@@ -2,9 +2,6 @@ import os
 import time
 
 class Utils:
-
-    def __init__(self):
-        pass
     
     def print_line(self):
         print("-------------")
