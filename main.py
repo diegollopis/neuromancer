@@ -1,72 +1,44 @@
-import subprocess
-import time
-import os
+from utils import Utils
+from git_actions import GitAction
+from helper import Helper
 
-items = ['feat', 'fix', 'docs', 'style', 'refactor', 'test', 'chore']
+class Controller:
 
-def chooseOption():
-    print("-------------") 
-    for item in items:
-        print(item)
-    print("-------------") 
-    option = input(": ").lower()
-    while option not in items:
-        option = input("Opção não permitida. Digite novamente: ")
-    return option
+    action = GitAction()
+    utils = Utils()
 
-def execute(list):
-    subprocess.run(list)
-    time.sleep(2)
+    def show_helper(self):
+        self.utils.clear_screen()
+        helper = Helper()
+        helper.print_helper()
+        _ = input('Press Enter to exit: ')
+        self.run()
 
-def checkGit():
-    response = subprocess.run(['git', 'rev-parse', '--git-dir'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    return True if response.returncode == 0 else False
+    def do_repo_push(self, option: str):
+        message = input('Digite a mensagem do commit: ')
+        message_formatted = f'{option}: {message}'
+        self.action.do_git_steps(message_formatted)
 
-def gitAdd():
-    execute(['git', 'add', "."])
+    def run(self):
+        is_git = self.action.check_git()
+        are_changes = self.action.status()
+        
+        if not is_git:
+            print('Não é um diretório git!')
+            return 
+        
+        if not are_changes:
+            print('Não há modificações no repo!')
+            return
 
-def gitCommit(message):
-    execute(['git', 'commit', '-m', message])
+        self.utils.clear_screen()
+        option = self.utils.choose_option()
 
-def gitStatus():
-    # git ls-files -m -o --exclude-from=.gitignore
-    response = subprocess.run(['git', 'ls-files', '-m', '-o', '--exclude-from=.gitignore'], capture_output=True, text=True)
-    file_list = response.stdout.splitlines()
-    return True if len(file_list) > 0 else False
-
-def gitPush():
-    branch_name = getCurrentBranch()
-    execute(['git', 'push', '-u', 'origin', branch_name])
-
-def getCurrentBranch():
-    branch_name = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip().decode("utf-8")
-    return branch_name
-
-def formatMessage():
-    type = chooseOption()
-    message = input('Digite a mensagem do commit: ')
-    return f'{type}: {message}'
-
-def doGitSteps(message):
-    gitAdd()
-    gitCommit(message)
-    gitPush()
-
-def main():
-    isGit = checkGit()
-    areChanges = gitStatus()
-    
-    if not isGit:
-        print('Não é um diretório git!')
-        return 
-    
-    if not areChanges:
-        print('Não há modificações no repo!')
-        return
-
-    os.system('clear')
-    message = formatMessage()
-    doGitSteps(message)
-
-if __name__ == "__main__":
-    main()
+        if option == 'quit':
+            self.utils.clear_screen()
+            quit()
+        elif option == 'help':
+            self.show_helper()
+        else:
+            self.do_repo_push(option)
+            
