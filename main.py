@@ -7,6 +7,11 @@ class Controller:
     action = GitAction()
     utils = Utils()
 
+    def print_not_found_message(text: str):
+        print(text)
+        print()
+        return
+
     def show_helper(self):
         self.utils.clear_screen()
         Helper().print_helper()
@@ -25,12 +30,10 @@ class Controller:
         are_changes = self.action.check_changed_files()
         
         if not is_git:
-            print('Git not found!')
-            return 
+            self.print_not_found_message('Git not found!')
         
         if not are_changes:
-            print('There are no modifications in this repository!')
-            return
+            self.print_not_found_message('There are no modifications in this repository!')
 
         self.utils.clear_screen()
         option = self.utils.choose_option()

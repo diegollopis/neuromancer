@@ -10,7 +10,7 @@ class Utils:
         cmd('clear')
 
     def wait(self):
-        timer(2)
+        timer(1)
 
     def print_options(self):
         title = 'NEUROMANCER 1.0'
