@@ -11,7 +11,7 @@ class Controller:
         self.utils.clear_screen()
         helper = Helper()
         helper.print_helper()
-        _ = input('Press Enter to exit: ')
+        _ = input('Press "Enter" to exit: ')
         self.run()
 
     def do_repo_push(self, option: str):

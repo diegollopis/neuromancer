@@ -4,7 +4,7 @@ from time import sleep as timer
 class Utils:
     
     def print_line(self):
-        print("-------------")
+        print("---------------")
 
     def clear_screen(self):
         cmd('clear')
@@ -20,6 +20,7 @@ class Utils:
         for item in items[:7]:
             print(item) 
         self.print_line()
+        print('>> Type commit type from above ("quit" to exit the program or "help" to know more about semantic commits)')
         return items
 
     def choose_option(self):
