@@ -7,7 +7,7 @@ class Controller:
     action = GitAction()
     utils = Utils()
 
-    def print_not_found_message(text: str):
+    def print_not_found_message(self, text: str):
         print(text)
         print()
         return
