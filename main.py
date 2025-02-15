@@ -14,10 +14,8 @@ class Controller:
         self.run()
 
     def do_repo_push(self, option: str):
-        print()
-        message = input('>> Commit message: ')
+        message = input('\n>> Commit message: ')
         message_formatted = f'{option}: {message}'
-        print()
         self.action.do_git_steps(message_formatted)
 
     def run(self):

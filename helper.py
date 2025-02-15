@@ -4,7 +4,7 @@ class Helper:
 
     utils = Utils()
 
-    diagram = '''
+    commit_message_example = '''
 feat: add hat wobble
 ^--^  ^------------^
 |     |
@@ -13,7 +13,7 @@ feat: add hat wobble
 +-------> Type: chore, docs, feat, fix, refactor, style, or test.
     '''
 
-    help_items = {
+    commit_message_types = {
         'feat' : '(new feature for the user, not a new feature for build script)',
         'fix' : '(bug fix for the user, not a fix to a build script)',
         'docs' : '(changes to the documentation)',
@@ -25,8 +25,8 @@ feat: add hat wobble
         
     def print_helper(self):
         self.utils.clear_screen()
-        print(self.diagram)
+        print(self.commit_message_example)
         print()
-        for key, value in self.help_items.items():
+        for key, value in self.commit_message_types.items():
             print(f'{key}: {value}')
         print()
