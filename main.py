@@ -30,13 +30,11 @@ class Controller:
         are_changes = self.action.check_changed_files()
         
         if not is_git:
-            print('Git not found!')
-            print()
+            print('\nGit not found!\n')
             return
         
         if not are_changes:
-            print('There are no modifications in this repository!')
-            print()
+            print('\nThere are no modifications in this repository!\n')
             return
 
         self.utils.clear_screen()
