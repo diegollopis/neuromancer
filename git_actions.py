@@ -25,8 +25,8 @@ class GitAction:
 
     def check_changed_files(self):
         response = subprocess.run(['git', 'ls-files', '-m', '-o', '--exclude-from=.gitignore'], capture_output=True, text=True)
-        files_list = response.stdout.splitlines()
-        return len(files_list) > 0
+        files_changed_list = response.stdout.splitlines()
+        return len(files_changed_list) > 0
 
     def push(self):
         branch_name = self.get_current_branch()
