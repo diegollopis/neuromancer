@@ -1,8 +1,6 @@
-from utils import Utils
+from classes.utils import Utils
 
 class Helper:
-
-    utils = Utils()
 
     commit_message_example = '''
 feat: add hat wobble
@@ -24,7 +22,7 @@ feat: add hat wobble
     }
         
     def print_helper(self):
-        self.utils.clear_screen()
+        Utils.clear_screen()
         print(self.commit_message_example)
         print()
         for key, value in self.commit_message_types.items():

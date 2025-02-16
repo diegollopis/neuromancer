@@ -1,6 +1,4 @@
-from main import Controller
-
-controller = Controller()
+from classes.main import Controller
 
 if __name__ == "__main__":
-    controller.run()
+    Controller.run()

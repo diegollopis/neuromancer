@@ -1,41 +1,47 @@
 import subprocess
-from utils import Utils
+from classes.utils import Utils
 
 class GitAction:
 
-    utils = Utils()
+    @classmethod
+    def execute(cls, action: list):
+        subprocess.run(action)
+        Utils.wait()
 
-    def execute(self, list: list):
-        subprocess.run(list)
-        self.utils.wait()
-
-    def check_is_git_detected(self):
+    @classmethod
+    def check_is_git_detected(cls):
         response = subprocess.run(['git', 'rev-parse', '--git-dir'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         return response.returncode == 0 
-    
-    def check_changed_files(self):
+
+    @classmethod
+    def check_changed_files(cls):
         response = subprocess.run(['git', 'ls-files', '-m', '-o', '--exclude-from=.gitignore'], capture_output=True, text=True)
         files_changed_list = response.stdout.splitlines()
         return len(files_changed_list) > 0
-    
-    def get_current_branch(self):
+
+    @classmethod
+    def get_current_branch(cls):
         branch_name = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip().decode("utf-8")
         return branch_name
 
-    def add_files(self):
-        self.execute(['git', 'add', "."])
+    @classmethod
+    def add_files(cls):
+        GitAction.execute(['git', 'add', "."])
         print('\nFiles ready to commit!\n')
 
+    @classmethod
     def commit(self, message: str):
-        self.execute(['git', 'commit', '-m', message])
+        GitAction.execute(['git', 'commit', '-m', message])
         print('\nCommit setup done!\n')
 
-    def push(self):
-        branch_name = self.get_current_branch()
-        self.execute(['git', 'push', '-u', 'origin', branch_name])
+    @classmethod
+    def push(cls):
+        branch_name = cls.get_current_branch()
+        GitAction.execute(['git', 'push', '-u', 'origin', branch_name])
         print('\nPush to remote repo done successfully!\n')
-    
-    def do_git_steps(self, message: str):
-        self.add_files()
-        self.commit(message)
-        self.push()
+
+    @classmethod
+    def do_git_steps(cls, message: str):
+        cls.add_files()
+        cls.commit(message)
+        cls.push()

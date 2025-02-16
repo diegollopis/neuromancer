@@ -2,30 +2,35 @@ from os import system as cmd
 from time import sleep as timer
 
 class Utils:
-    
-    def print_line(self, times: int):
+
+    @classmethod
+    def print_line(cls, times: int):
         print('-' * times)
 
-    def clear_screen(self):
+    @classmethod
+    def clear_screen(cls):
         cmd('clear')
 
-    def wait(self):
+    @classmethod
+    def wait(cls):
         timer(1)
 
-    def print_options(self):
+    @classmethod
+    def print_options(cls):
         title = 'NEUROMANCER 1.0'
         items = ('feat', 'fix', 'docs', 'style', 'refactor', 'test', 'chore', 'help', 'quit')
-        self.print_line(len(title))
+        cls.print_line(len(title))
         print(title)
-        self.print_line(len(title)) 
+        cls.print_line(len(title))
         for item in items[:7]:
             print(item) 
-        self.print_line(len(title))
+        cls.print_line(len(title))
         print('>> "quit" to exit or "help" to know more about semantic commits')
         return items
 
-    def choose_option(self):
-        options = self.print_options()
+    @classmethod
+    def choose_option(cls):
+        options = cls.print_options()
         option = input("\n>> Commit type: ").lower()
         while option not in options:
             option = input(">> Invalid option. Try again: ").lower()
