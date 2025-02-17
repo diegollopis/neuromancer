@@ -13,9 +13,28 @@ class Controller:
 
     @classmethod
     def do_repo_push(cls, option: str):
-        message = input('\n>> Commit message: ')
+        message = input('\n>> Commit message: ').lower()
+
+        if message == 'quit':
+            cls.run()
+            return
+
+        while not message.strip() or len(message) <= 8:
+            message = input('\n>> Commit message needs at least 8 characters. Try again: ').lower()
+
         message_formatted = f'{option}: {message}'
-        GitAction.do_git_steps(message_formatted)
+
+        message_confirmation = input(f'\n>> "{message_formatted}". Confirm? (y/n): ').lower()
+
+        while message_confirmation != 'y' and message_confirmation != 'n':
+            message_confirmation = input(f'Wrong input. Try again (y/n): ').lower()
+
+        if message_confirmation == 'y':
+            GitAction.do_git_steps(message_formatted)
+        else:
+            cls.do_repo_push(option)
+
+
 
     @classmethod
     def run(cls):
