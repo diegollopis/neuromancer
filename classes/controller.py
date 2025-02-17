@@ -42,12 +42,13 @@ class Controller:
             cls.commit_option = sys.argv[1]
             cls.commit_message = ' '.join(sys.argv[2:])
             message_formatted = cls.format_commit_message()
-            confirm = input('Confirm commit message? [y/n]: ').lower()
+            confirm = input(f'\nConfirm commit message? "{message_formatted}" [y/n]: ').lower()
             while confirm != 'y' and confirm != 'n':
-                confirm = input('Wrong input. Try again [y/n]: ').lower()
+                confirm = input('\nWrong input. Try again [y/n]: ').lower()
             if confirm == 'y':
                 GitAction.do_git_steps(message_formatted)
             else:
+                print()
                 return
         else:
            return
