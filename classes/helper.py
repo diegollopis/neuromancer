@@ -23,8 +23,7 @@ feat: add hat wobble
         
     def print_helper(self):
         cmd('clear')
-        print(self.commit_message_example)
-        print()
+        print(f'{self.commit_message_example}\n')
         for key, value in self.commit_message_types.items():
             print(f'{key}: {value}')
         print()

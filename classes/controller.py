@@ -1,6 +1,6 @@
-from classes.git_actions import GitAction
-from classes.helper import Helper
 import sys
+from classes.helper import Helper
+from classes.git_actions import GitAction
 
 class Controller:
 
@@ -20,12 +20,10 @@ class Controller:
 
     @classmethod
     def splash_and_go(cls):
-        argument_list = sys.argv
-        if len(argument_list) > 1:
-            cls.commit_option = sys.argv[1]
-            cls.commit_message = ' '.join(sys.argv[2:])
-            message_formatted = cls.format_commit_message()
-            GitAction.do_git_steps(message_formatted)
+        cls.commit_option = sys.argv[1]
+        cls.commit_message = ' '.join(sys.argv[2:])
+        message_formatted = cls.format_commit_message()
+        GitAction.do_git_steps(message_formatted)
 
     @classmethod
     def run(cls):
@@ -41,7 +39,16 @@ class Controller:
             return
 
         if len(sys.argv) > 1:
-            cls.splash_and_go()
+            cls.commit_option = sys.argv[1]
+            cls.commit_message = ' '.join(sys.argv[2:])
+            message_formatted = cls.format_commit_message()
+            confirm = input('Confirm commit message? [y/n]: ').lower()
+            while confirm != 'y' and confirm != 'n':
+                confirm = input('Wrong input. Try again [y/n]: ').lower()
+            if confirm == 'y':
+                GitAction.do_git_steps(message_formatted)
+            else:
+                return
         else:
            return
             

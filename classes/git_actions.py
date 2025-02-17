@@ -34,10 +34,10 @@ class GitAction:
 
     @classmethod
     def get_current_branch(cls):
-        branch_name = subprocess.check_output(
+        current_branch = subprocess.check_output(
             ["git", "rev-parse", "--abbrev-ref", "HEAD"]
         ).strip().decode("utf-8")
-        return branch_name
+        return current_branch
 
     @classmethod
     def add(cls):
