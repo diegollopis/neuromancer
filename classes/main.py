@@ -72,9 +72,9 @@ class Controller:
 
     @classmethod
     def execute_git_steps(cls):
-        commit_message_formatted = cls.format_commit_message()
+        commit_message_formatted = f'{cls.commit_option}: {cls.commit_message}'
         commit_message_confirmation = cls.check_message()
-
+        
         if commit_message_confirmation == 'y':
             GitAction.do_git_steps(commit_message_formatted)
         elif commit_message_confirmation == 'quit':
