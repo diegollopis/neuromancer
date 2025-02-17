@@ -1,12 +1,12 @@
 import subprocess
-from classes.utils import Utils
+from time import sleep as timer
 
 class GitAction:
 
     @classmethod
     def execute(cls, action: list):
         subprocess.run(action)
-        Utils.wait()
+        timer(1)
 
     @classmethod
     def config_git_action(cls, action: list, name: str):

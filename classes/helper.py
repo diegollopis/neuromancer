@@ -1,4 +1,4 @@
-from classes.utils import Utils
+from os import system as cmd
 
 class Helper:
 
@@ -22,7 +22,7 @@ feat: add hat wobble
     }
         
     def print_helper(self):
-        Utils.clear_screen()
+        cmd('clear')
         print(self.commit_message_example)
         print()
         for key, value in self.commit_message_types.items():
