@@ -6,7 +6,7 @@ class Controller:
 
     commit_option: str = ''
     commit_message: str = ''
-    items = ('feat', 'fix', 'docs', 'style', 'refactor', 'test', 'chore', 'help', 'quit')
+    items = ('feat', 'fix', 'docs', 'style', 'refactor', 'test', 'chore')
 
     @classmethod
     def format_commit_message(cls):
@@ -15,13 +15,6 @@ class Controller:
     @classmethod
     def show_helper(cls):
         Helper.print_helper()
-
-    @classmethod
-    def splash_and_go(cls):
-        cls.commit_option = sys.argv[1]
-        cls.commit_message = ' '.join(sys.argv[2:])
-        message_formatted = cls.format_commit_message()
-        GitAction.do_git_steps(message_formatted)
 
     @classmethod
     def run(cls):
@@ -39,6 +32,8 @@ class Controller:
         if len(sys.argv) > 1:
             if sys.argv[1] == 'help':
                 cls.show_helper()
+            elif sys.argv[1] not in cls.items:
+                print(f'\nCommit option is not valid! Only options below are available.\n\n{cls.items}\n')
             else:
                 cls.commit_option = sys.argv[1]
                 cls.commit_message = ' '.join(sys.argv[2:])
@@ -50,7 +45,6 @@ class Controller:
                     GitAction.do_git_steps(message_formatted)
                 else:
                     print()
-                    return
         else:
             print('\nPlease add a commit message!\n')
             return
