@@ -53,7 +53,12 @@ class GitAction:
         cls.config_git_action(['git', 'push', '-u', 'origin', branch_name], 'push')
 
     @classmethod
+    def status(cls):
+        cls.execute(['git', 'status', '--porcelain'])
+
+    @classmethod
     def do_git_steps(cls, message: str):
         cls.add_files()
         cls.commit(message)
         cls.push()
+        cls.status()
