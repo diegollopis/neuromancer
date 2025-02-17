@@ -35,20 +35,22 @@ class GitAction:
         return branch_name
 
     @classmethod
+    def config_git_action(cls, action: list, name: str):
+        GitAction.execute(action)
+        print(f'\ngit {name} done!\n')
+
+    @classmethod
     def add_files(cls):
-        GitAction.execute(['git', 'add', "."])
-        print('\nFiles ready to commit!\n')
+        cls.config_git_action(['git', 'add', '.'], 'add')
 
     @classmethod
     def commit(cls, message: str):
-        GitAction.execute(['git', 'commit', '-m', message])
-        print('\nCommit setup done!\n')
+        cls.config_git_action(['git', 'commit', '-m', message], 'commit')
 
     @classmethod
     def push(cls):
         branch_name = cls.get_current_branch()
-        GitAction.execute(['git', 'push', '-u', 'origin', branch_name])
-        print('\nPush to remote repo done successfully!\n')
+        cls.config_git_action(['git', 'push', '-u', 'origin', branch_name], 'push')
 
     @classmethod
     def do_git_steps(cls, message: str):
