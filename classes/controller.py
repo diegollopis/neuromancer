@@ -14,9 +14,7 @@ class Controller:
 
     @classmethod
     def show_helper(cls):
-        Helper().print_helper()
-        _ = input('Press "Enter" to exit: ')
-        cls.run()
+        Helper.print_helper()
 
     @classmethod
     def splash_and_go(cls):
@@ -39,17 +37,21 @@ class Controller:
             return
 
         if len(sys.argv) > 1:
-            cls.commit_option = sys.argv[1]
-            cls.commit_message = ' '.join(sys.argv[2:])
-            message_formatted = cls.format_commit_message()
-            confirm = input(f'\nConfirm commit message? "{message_formatted}" [y/n]: ').lower()
-            while confirm != 'y' and confirm != 'n':
-                confirm = input('\nWrong input. Try again [y/n]: ').lower()
-            if confirm == 'y':
-                GitAction.do_git_steps(message_formatted)
+            if sys.argv[1] == 'help':
+                cls.show_helper()
             else:
-                print()
-                return
+                cls.commit_option = sys.argv[1]
+                cls.commit_message = ' '.join(sys.argv[2:])
+                message_formatted = cls.format_commit_message()
+                confirm = input(f'\n"{message_formatted}". Confirm? [y/n]: ').lower()
+                while confirm != 'y' and confirm != 'n':
+                    confirm = input('\nWrong input. Try again [y/n]: ').lower()
+                if confirm == 'y':
+                    GitAction.do_git_steps(message_formatted)
+                else:
+                    print()
+                    return
         else:
-           return
+            print('\nPlease add a commit message!\n')
+            return
             

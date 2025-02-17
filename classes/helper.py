@@ -20,10 +20,11 @@ feat: add hat wobble
         'test' : '(adding missing tests, refactoring tests; no production code change)',
         'chore' : '(updating grunt tasks etc; no production code change)'
     }
-        
-    def print_helper(self):
+
+    @classmethod
+    def print_helper(cls):
         cmd('clear')
-        print(f'{self.commit_message_example}\n')
-        for key, value in self.commit_message_types.items():
+        print(f'{cls.commit_message_example}\n')
+        for key, value in cls.commit_message_types.items():
             print(f'{key}: {value}')
         print()
