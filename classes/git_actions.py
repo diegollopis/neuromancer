@@ -54,7 +54,7 @@ class GitAction:
 
     @classmethod
     def status(cls):
-        cls.execute(['git', 'status', '--porcelain'])
+        cls.execute(['git', 'status'])
 
     @classmethod
     def do_git_steps(cls, message: str):
