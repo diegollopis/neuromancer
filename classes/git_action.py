@@ -37,7 +37,7 @@ class GitAction:
         return subprocess.check_output(
             ["git", "rev-parse", "--abbrev-ref", "HEAD"]
         ).strip().decode("utf-8")
-    
+
     @classmethod
     def add(cls):
         cls.config_git_action(['git', 'add', '.'], 'add')
