@@ -12,29 +12,38 @@ class Controller:
         cls.run()
 
     @classmethod
-    def do_repo_push(cls, option: str):
-        message = input('\n>> Commit message: ').lower()
+    def format_commit_message(cls, option: str, message: str):
+        return f'{option}: {message}'
 
-        if message == 'quit':
+    @classmethod
+    def execute_git_steps(cls, option: str):
+        message_confirmation_options = ['y', 'n', 'quit']
+        minimum_length_commit_message = 12
+
+        commit_message = input('\n>> Commit message: ').lower()
+
+        if commit_message == 'quit':
             cls.run()
             return
 
-        while not message.strip() or len(message) <= 8:
-            message = input('\n>> Commit message needs at least 8 characters. Try again: ').lower()
+        while not commit_message.strip() or len(commit_message) <= minimum_length_commit_message:
+            commit_message = input(
+                f'\n>> Commit message needs at least {str(minimum_length_commit_message)} characters. Try again: '
+            ).lower()
 
-        message_formatted = f'{option}: {message}'
+        commit_message_formatted = cls.format_commit_message(option, commit_message)
 
-        message_confirmation = input(f'\n>> "{message_formatted}". Confirm? (y/n): ').lower()
+        commit_message_confirmation = input(f'\n>> "{commit_message_formatted}". Confirm? (y/n): ').lower()
 
-        while message_confirmation != 'y' and message_confirmation != 'n':
-            message_confirmation = input(f'Wrong input. Try again (y/n): ').lower()
+        while commit_message_confirmation not in message_confirmation_options :
+            commit_message_confirmation = input(f'Wrong input. Try again (y/n): ').lower()
 
-        if message_confirmation == 'y':
-            GitAction.do_git_steps(message_formatted)
+        if commit_message_confirmation == 'y':
+            GitAction.do_git_steps(commit_message_formatted)
+        elif commit_message_confirmation == 'quit':
+            cls.run()
         else:
-            cls.do_repo_push(option)
-
-
+            cls.execute_git_steps(option)
 
     @classmethod
     def run(cls):
@@ -58,5 +67,5 @@ class Controller:
         elif option == 'help':
             cls.show_helper()
         else:
-            cls.do_repo_push(option)
+            cls.execute_git_steps(option)
             
