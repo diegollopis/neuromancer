@@ -9,7 +9,7 @@ class GitAction:
         Utils.wait()
 
     @classmethod
-    def check_is_git_detected(cls):
+    def check_is_repo_git(cls):
         response = subprocess.run(
             ['git', 'rev-parse', '--git-dir'],
             stdout=subprocess.DEVNULL,
