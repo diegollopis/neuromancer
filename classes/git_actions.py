@@ -9,6 +9,11 @@ class GitAction:
         Utils.wait()
 
     @classmethod
+    def config_git_action(cls, action: list, name: str):
+        cls.execute(action)
+        print(f'\ngit {name} done!\n')
+
+    @classmethod
     def check_is_repo_git(cls):
         response = subprocess.run(
             ['git', 'rev-parse', '--git-dir'],
@@ -35,12 +40,7 @@ class GitAction:
         return branch_name
 
     @classmethod
-    def config_git_action(cls, action: list, name: str):
-        GitAction.execute(action)
-        print(f'\ngit {name} done!\n')
-
-    @classmethod
-    def add_files(cls):
+    def add(cls):
         cls.config_git_action(['git', 'add', '.'], 'add')
 
     @classmethod
@@ -58,7 +58,7 @@ class GitAction:
 
     @classmethod
     def do_git_steps(cls, message: str):
-        cls.add_files()
+        cls.add()
         cls.commit(message)
         cls.push()
         cls.status()

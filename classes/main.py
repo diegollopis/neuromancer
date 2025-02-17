@@ -9,16 +9,18 @@ class Controller:
     commit_message: str = ''
 
     @classmethod
-    def print_options(cls):
-        title = 'NEUROMANCER 1.0'
-        items = ('feat', 'fix', 'docs', 'style', 'refactor', 'test', 'chore', 'help', 'quit')
-        Utils.print_repo_infos()
+    def print_app_title(cls, title):
         Utils.print_line(len(title))
         print(title)
         Utils.print_line(len(title))
+
+    @classmethod
+    def print_options(cls):
+        items = ('feat', 'fix', 'docs', 'style', 'refactor', 'test', 'chore', 'help', 'quit')
+        cls.print_app_title('NEUROMANCER 1.0')
         for item in items[:7]:
             print(item)
-        Utils.print_line(len(title))
+        Utils.print_line(len('NEUROMANCER 1.0'))
         print('>> "quit" to exit or "help" to know more about semantic commits')
         return items
 
