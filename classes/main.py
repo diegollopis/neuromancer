@@ -9,6 +9,10 @@ class Controller:
     commit_message: str = ''
 
     @classmethod
+    def format_commit_message(cls):
+        return f'{cls.commit_option}: {cls.commit_message}'
+
+    @classmethod
     def print_app_title(cls, title):
         Utils.print_line(len(title))
         print(title)
@@ -39,10 +43,6 @@ class Controller:
         Helper().print_helper()
         _ = input('Press "Enter" to exit: ')
         cls.run()
-
-    @classmethod
-    def format_commit_message(cls):
-        return f'{cls.commit_option}: {cls.commit_message}'
 
     @classmethod
     def check_message(cls):
