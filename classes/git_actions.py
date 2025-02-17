@@ -62,3 +62,4 @@ class GitAction:
         cls.commit(message)
         cls.push()
         cls.status()
+        print()
