@@ -1,2 +1,2 @@
 # neuromancer
-Neuromancer is just a fancy name for python program that executes a bunch of git commands in an automated way
+Neuromancer is just a fancy name for python script that executes a git push with just a single terminal command
