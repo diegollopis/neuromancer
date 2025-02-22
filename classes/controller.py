@@ -33,6 +33,7 @@ class Controller:
     @classmethod
     def main(cls):
         items = ('feat', 'fix', 'docs', 'style', 'refactor', 'test', 'chore')
+        sys_args_length = len(sys.argv)
 
         is_git = GitAction.check_is_repo_git()
         are_changes = GitAction.check_changed_files()
@@ -45,11 +46,11 @@ class Controller:
             cls.print_message('There are no modifications in this repository.')
             return
 
-        if len(sys.argv) == 1:
+        if sys_args_length == 1:
             cls.print_message('A commit option and message are required.')
             return
 
-        if len(sys.argv) == 2:
+        if sys_args_length == 2:
             if sys.argv[1] == 'help':
                 cls.show_helper()
             elif sys.argv[1] not in items:
