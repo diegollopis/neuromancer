@@ -43,6 +43,10 @@ class Controller:
             cls.print_message('There are no modifications in this repository!')
             return
 
+        if len(sys.argv) < 3:
+            print(f'\nYou need to add a commit message!\n')
+            return
+
         if len(sys.argv) > 1:
             if sys.argv[1] == 'help':
                 cls.show_helper()
