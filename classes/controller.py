@@ -10,7 +10,9 @@ class Controller:
 
     @classmethod
     def print_message(cls, text: str):
-        f'\n{text}\n'
+        print()
+        print(text)
+        print()
 
     @classmethod
     def show_helper(cls):
@@ -29,7 +31,7 @@ class Controller:
             cls.print_message('Operation cancelled.')
 
     @classmethod
-    def run(cls):
+    def main(cls):
         items = ('feat', 'fix', 'docs', 'style', 'refactor', 'test', 'chore')
 
         is_git = GitAction.check_is_repo_git()
