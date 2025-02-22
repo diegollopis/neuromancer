@@ -38,23 +38,29 @@ class Controller:
         are_changes = GitAction.check_changed_files()
         
         if not is_git:
-            cls.print_message('Git not found!')
+            cls.print_message('Git not found.')
             return
 
         if not are_changes:
-            cls.print_message('There are no modifications in this repository!')
+            cls.print_message('There are no modifications in this repository.')
             return
 
-        if len(sys.argv) < 3:
-            print(f'\nYou need to add a commit message!\n')
+        if len(sys.argv) == 1:
+            cls.print_message('A commit option and message are required.')
             return
 
-        if len(sys.argv) > 1:
+        if len(sys.argv) == 2:
             if sys.argv[1] == 'help':
                 cls.show_helper()
             elif sys.argv[1] not in items:
                 print(f'\nCommit option is not valid! Only options below are available.\n\n{items}\n')
             else:
-                commit_message = cls.format_commit_message(option= sys.argv[1], message= ' '.join(sys.argv[2:]))
-                cls.confirm_message_and_do_git_steps_or_cancel(message= commit_message)
+                cls.print_message('You need to add a commit message.')
+            return
+
+        commit_message = cls.format_commit_message(
+            option= sys.argv[1],
+            message= ' '.join(sys.argv[2:])
+        )
+        cls.confirm_message_and_do_git_steps_or_cancel(message= commit_message)
             
