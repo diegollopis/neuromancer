@@ -28,13 +28,21 @@ feat: add hat wobble
     ]
 
     @classmethod
-    def print_helper(cls):
-        cmd('clear')
+    def print_message_example(cls):
         print(f'{cls.commit_message_example}\n')
         for key, value in cls.commit_message_types.items():
             print(f'{key}: {value}')
         print()
+
+    @classmethod
+    def print_references(cls):
         print('References\n')
         for reference in cls.references:
             print(reference)
         print()
+
+    @classmethod
+    def print_helper(cls):
+        cmd('clear')
+        cls.print_message_example()
+        cls.print_references()
