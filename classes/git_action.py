@@ -14,6 +14,19 @@ class GitAction:
         print(f'\ngit {name} done!\n')
 
     @classmethod
+    def check_repo_authorization(cls):
+        try:
+            subprocess.run(
+                ["git", "push", "--dry-run"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True
+            )
+            return True
+        except subprocess.CalledProcessError:
+            return False
+       
+    @classmethod
     def check_is_repo_git(cls):
         response = subprocess.run(
             ['git', 'rev-parse', '--git-dir'],
