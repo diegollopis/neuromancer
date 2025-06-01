@@ -1,7 +1,16 @@
 import subprocess
 from time import sleep as timer
+from urllib import request
 
 class GitAction:
+
+    @classmethod
+    def check_internet_connection(cls):
+        try:
+            request.urlopen('https://www.google.com', timeout=5)
+            return True
+        except:
+            return False
 
     @classmethod
     def execute(cls, action: list):

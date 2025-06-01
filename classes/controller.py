@@ -34,10 +34,15 @@ class Controller:
     def main(cls):
         items = ('feat', 'fix', 'docs', 'style', 'refactor', 'test', 'chore')
         sys_args_length = len(sys.argv)
-       
+
+        has_internet_connection = GitAction.check_internet_connection()
         is_authorized = GitAction.check_repo_authorization()
         is_git = GitAction.check_is_repo_git()
         are_changes = GitAction.check_changed_files()
+
+        if not has_internet_connection:
+            cls.print_message('No internet connection.')
+            return 
 
         if not is_authorized:
             cls.print_message("You don't have authorization to push modifications into this repository.")
