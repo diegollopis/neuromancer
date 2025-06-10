@@ -20,7 +20,7 @@ class GitAction:
     @classmethod
     def config_git_action(cls, action: list, name: str):
         cls.execute(action)
-        print(f'\ngit {name} done!\n')
+        print(f'\n✅ git {name} done!\n')
 
     @classmethod
     def check_repo_authorization(cls):
