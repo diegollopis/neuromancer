@@ -24,11 +24,11 @@ class Controller:
 
         confirm = input(f'\n"{message}". Confirm? [y/n]: ').lower()
         while confirm not in confirm_options:
-            confirm = input('\nWrong input. Try again [y/n]: ').lower()
+            confirm = input('\n❌ Wrong input. Try again [y/n]: ').lower()
         if confirm == 'y':
             GitAction.do_git_steps(message)
         else:
-            cls.print_message('Operation cancelled.')
+            cls.print_message('❌ Operation cancelled.')
 
     @classmethod
     def main(cls):
@@ -41,32 +41,32 @@ class Controller:
         are_changes = GitAction.check_changed_files()
 
         if not has_internet_connection:
-            cls.print_message('No internet connection.')
+            cls.print_message('❌ No internet connection.')
             return 
 
         if not is_authorized:
-            cls.print_message("You don't have authorization to push modifications into this repository.")
+            cls.print_message("❌ You don't have authorization to push modifications into this repository.")
             return
         
         if not is_git:
-            cls.print_message('Git not found.')
+            cls.print_message('❌ Git not found.')
             return
 
         if not are_changes:
-            cls.print_message('There are no modifications in this repository.')
+            cls.print_message('❌ There are no modifications in this repository.')
             return
 
         if sys_args_length == 1:
-            cls.print_message('A commit option and message are required.')
+            cls.print_message('❌ A commit option and message are required.')
             return
 
         if sys_args_length == 2:
             if sys.argv[1] == 'help':
                 cls.show_helper()
             elif sys.argv[1] not in items:
-                print(f'\nCommit option is not valid! Only options below are available.\n\n{items}\n')
+                print(f'\n❌ Commit option is not valid! Only options below are available.\n\n{items}\n')
             else:
-                cls.print_message('You need to add a commit message.')
+                cls.print_message('❌ You need to add a commit message.')
             return
 
         commit_message = cls.format_commit_message(

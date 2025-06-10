@@ -24,16 +24,12 @@ class GitAction:
 
     @classmethod
     def check_repo_authorization(cls):
-        try:
-            subprocess.run(
-                ["git", "push", "--dry-run"],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                check=True
-            )
-            return True
-        except subprocess.CalledProcessError:
-            return False
+        resultado = subprocess.run(
+            ["git", "push"],
+            capture_output=True,
+            text=True
+        ) 
+        return resultado.returncode == 0
        
     @classmethod
     def check_is_repo_git(cls):
