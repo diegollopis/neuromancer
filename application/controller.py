@@ -36,7 +36,7 @@ class GitController:
                 details="Error initializing Git controller"
             ) from e
     
-    def process_commit(self, args: List[str]) -> None:
+    def process_commit(self, args: List[str]):
         """
         Process command line arguments and execute the commit.
         
@@ -78,7 +78,7 @@ class GitController:
         commit_message = f"{args[1]}: {' '.join(args[2:])}"
         self.execute_commit(commit_message)
     
-    def validate_environment(self) -> None:
+    def validate_environment(self):
         """
         Validates the Git environment before operations.
         
@@ -103,7 +103,7 @@ class GitController:
                 details="Error validating Git environment"
             ) from e
     
-    def execute_commit(self, message: str) -> None:
+    def execute_commit(self, message: str):
         """
         Executes a complete commit operation.
         
@@ -133,7 +133,7 @@ class GitController:
                 details=f"Error executing commit with message: {message}"
             ) from e
     
-    def show_status(self) -> None:
+    def show_status(self):
         """
         Shows the current status of the repository.
         

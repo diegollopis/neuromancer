@@ -19,7 +19,7 @@ class GitRepository:
         self.repo_path = Path(repo_path)
         self._validate_git_repo()
     
-    def _validate_git_repo(self) -> None:
+    def _validate_git_repo(self):
         """
         Validates if the directory is a valid Git repository.
         

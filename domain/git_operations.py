@@ -18,7 +18,7 @@ class GitOperations:
         self.repo = repo
         self.delay = delay
     
-    def add_files(self, files: Optional[List[str]] = None) -> None:
+    def add_files(self, files: Optional[List[str]] = None):
         """
         Adds files to the staging area.
         
@@ -40,7 +40,7 @@ class GitOperations:
                 details="Error adding files to staging"
             ) from e
     
-    def commit(self, message: str) -> None:
+    def commit(self, message: str):
         """
         Creates a commit with the staged changes.
         
@@ -59,7 +59,7 @@ class GitOperations:
                 details=f"Error creating commit with message: {message}"
             ) from e
     
-    def push(self) -> None:
+    def push(self):
         """
         Pushes commits to the remote repository.
         
@@ -76,7 +76,7 @@ class GitOperations:
                 details=f"Error pushing to branch {current_branch}"
             ) from e
     
-    def status(self) -> None:
+    def status(self):
         """
         Shows the current status of the repository.
         
