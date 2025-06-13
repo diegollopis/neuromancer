@@ -126,6 +126,7 @@ class GitController:
             self.operations.add_files()
             self.operations.commit(message)
             self.operations.push()
+            self.operations.status()
         except Exception as e:
             raise GitOperationError(
                 operation="execute_commit",
