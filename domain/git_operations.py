@@ -25,9 +25,16 @@ class GitOperations:
             command: List of command and its arguments
             name: Name of the operation for feedback
         """
-        self.repo.execute_git_command(command)
-        sleep(self.delay)
-        print(f'\n✅ git {name} done!\n')
+        try:
+            self.repo.execute_git_command(command)
+            sleep(self.delay)
+            print(f'\n✅ git {name} done!\n')
+        except Exception as e:
+            raise GitOperationError(
+                operation=name,
+                error=str(e),
+                details=f"Erro ao executar operação 'git {name}'"
+            ) from e
     
     def add_files(self, files: Optional[List[str]] = None) -> None:
         """
@@ -45,7 +52,11 @@ class GitOperations:
             else:
                 self.repo.execute_git_command(['git', 'add', '.'])
         except Exception as e:
-            raise GitOperationError(f"Error adding files: {str(e)}") from e
+            raise GitOperationError(
+                operation="add",
+                error=str(e),
+                details="Erro ao adicionar arquivos ao staging"
+            ) from e
     
     def commit(self, message: str) -> None:
         """
@@ -60,7 +71,11 @@ class GitOperations:
         try:
             self.repo.execute_git_command(['git', 'commit', '-m', message])
         except Exception as e:
-            raise GitOperationError(f"Error creating commit: {str(e)}") from e
+            raise GitOperationError(
+                operation="commit",
+                error=str(e),
+                details=f"Erro ao criar commit com mensagem: {message}"
+            ) from e
     
     def push(self) -> None:
         """
@@ -73,7 +88,11 @@ class GitOperations:
             current_branch = self.repo.get_current_branch()
             self.repo.execute_git_command(['git', 'push', 'origin', current_branch])
         except Exception as e:
-            raise GitOperationError(f"Error pushing to remote: {str(e)}") from e
+            raise GitOperationError(
+                operation="push",
+                error=str(e),
+                details=f"Erro ao fazer push para a branch {current_branch}"
+            ) from e
     
     def status(self) -> None:
         """
@@ -85,7 +104,11 @@ class GitOperations:
         try:
             self.repo.execute_git_command(['git', 'status'])
         except Exception as e:
-            raise GitOperationError(f"Error getting repository status: {str(e)}") from e
+            raise GitOperationError(
+                operation="status",
+                error=str(e),
+                details="Erro ao obter status do repositório"
+            ) from e
     
     @handle_git_errors
     def do_git_steps(self, message: str) -> None:

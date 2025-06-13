@@ -5,7 +5,8 @@ from .git_repository import GitRepository
 from .errors import (
     InternetConnectionError,
     AuthorizationError,
-    NoChangesError
+    NoChangesError,
+    GitOperationError
 )
 
 class GitEnvironment:
@@ -34,7 +35,9 @@ class GitEnvironment:
             request.urlopen('https://www.google.com', timeout=5)
             return True
         except Exception as e:
-            raise InternetConnectionError('No internet connection available') from e
+            raise InternetConnectionError(
+                f"Sem conexão com a internet: {str(e)}"
+            ) from e
     
     def check_repo_authorization(self) -> bool:
         """
@@ -49,26 +52,70 @@ class GitEnvironment:
         remote_url = self.repo.get_remote_url()
         if not remote_url:
             raise AuthorizationError(
-                "Remote repository not configured. Use 'git remote add origin <url>' to configure."
+                message="Repositório remoto não configurado",
+                details="Use 'git remote add origin <url>' para configurar o repositório remoto.",
+                suggestion="Configure o repositório remoto com 'git remote add origin <url>'"
             )
         
         try:
-            result = self.repo.execute_git_command(
-                ["git", "ls-remote", "--exit-code"],
+            # Primeiro tenta obter informações do repositório remoto
+            fetch_result = self.repo.execute_git_command(
+                ["git", "fetch", "--dry-run"],
                 capture_output=True
             )
             
-            if result.returncode != 0:
+            # Se chegou aqui, tem autorização básica
+            # Agora verifica se tem permissão de push
+            current_branch = self.repo.get_current_branch()
+            push_result = self.repo.execute_git_command(
+                ["git", "push", "--dry-run", "origin", current_branch],
+                capture_output=True
+            )
+            
+            # Verifica se há erros específicos de permissão
+            if "Permission denied" in push_result.stderr or "403" in push_result.stderr:
                 raise AuthorizationError(
-                    "Unable to access remote repository. Please check your credentials."
+                    message="Sem permissão para fazer push no repositório",
+                    details=f"Você não tem permissão para fazer push na branch {current_branch}",
+                    suggestion="Verifique suas credenciais e permissões de acesso ao repositório"
                 )
             
             return True
             
+        except subprocess.CalledProcessError as e:
+            error_msg = e.stderr.lower() if e.stderr else str(e).lower()
+            
+            if "permission denied" in error_msg or "403" in error_msg:
+                raise AuthorizationError(
+                    message="Sem permissão para acessar o repositório",
+                    details="Suas credenciais não têm permissão para acessar este repositório",
+                    suggestion="Verifique suas credenciais e permissões de acesso"
+                )
+            elif "not found" in error_msg or "404" in error_msg:
+                raise AuthorizationError(
+                    message="Repositório não encontrado",
+                    details="O repositório remoto não existe ou não está acessível",
+                    suggestion="Verifique se a URL do repositório está correta"
+                )
+            else:
+                raise AuthorizationError(
+                    message="Erro ao verificar autorização",
+                    details=str(e),
+                    suggestion="Verifique suas credenciais e permissões de acesso"
+                )
+            
         except subprocess.TimeoutExpired as e:
-            raise AuthorizationError("Timeout while connecting to remote repository") from e
+            raise AuthorizationError(
+                message="Timeout ao conectar ao repositório remoto",
+                details=str(e),
+                suggestion="Verifique sua conexão com a internet e tente novamente"
+            ) from e
         except Exception as e:
-            raise AuthorizationError(f"Error checking authorization: {str(e)}") from e
+            raise AuthorizationError(
+                message="Erro ao verificar autorização",
+                details=str(e),
+                suggestion="Verifique suas credenciais e permissões de acesso"
+            ) from e
     
     def check_changed_files(self) -> bool:
         """
@@ -79,23 +126,35 @@ class GitEnvironment:
         
         Raises:
             NoChangesError: If there are no modifications
+            GitOperationError: If there is an error checking files
         """
-        # Check modified files
-        modified = self.repo.execute_git_command(
-            ['git', 'ls-files', '-m'],
-            capture_output=True
-        )
-        
-        # Check untracked files
-        untracked = self.repo.execute_git_command(
-            ['git', 'ls-files', '--others', '--exclude-standard'],
-            capture_output=True
-        )
-        
-        modified_files = modified.stdout.splitlines()
-        untracked_files = untracked.stdout.splitlines()
-        
-        if not modified_files and not untracked_files:
-            raise NoChangesError('No changes to commit in this repository')
-        
-        return True 
+        try:
+            # Check modified files
+            modified = self.repo.execute_git_command(
+                ['git', 'ls-files', '-m'],
+                capture_output=True
+            )
+            
+            # Check untracked files
+            untracked = self.repo.execute_git_command(
+                ['git', 'ls-files', '--others', '--exclude-standard'],
+                capture_output=True
+            )
+            
+            modified_files = modified.stdout.splitlines()
+            untracked_files = untracked.stdout.splitlines()
+            
+            if not modified_files and not untracked_files:
+                raise NoChangesError(
+                    "Não há mudanças para commitar neste repositório"
+                )
+            
+            return True
+        except NoChangesError:
+            raise
+        except Exception as e:
+            raise GitOperationError(
+                operation="check_changed_files",
+                error=str(e),
+                details="Erro ao verificar arquivos modificados"
+            ) from e 
