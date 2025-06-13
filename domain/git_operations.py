@@ -18,21 +18,16 @@ class GitOperations:
         self.repo = repo
         self.delay = delay
     
-    def add_files(self, files: Optional[List[str]] = None):
+    def add_files(self):
         """
         Adds files to the staging area.
-        
-        Args:
-            files: List of files to add. If None, adds all files
         
         Raises:
             GitOperationError: If the add operation fails
         """
         try:
-            if files:
-                self.repo.execute_git_command(GIT_COMMANDS['add'] + files)
-            else:
-                self.repo.execute_git_command(GIT_COMMANDS['add'] + ['.'])
+            self.repo.execute_git_command(GIT_COMMANDS['add'] + ['.'])
+            print(f'\n✅ git add done!\n')
         except Exception as e:
             raise GitOperationError(
                 operation="add",
@@ -52,6 +47,7 @@ class GitOperations:
         """
         try:
             self.repo.execute_git_command(GIT_COMMANDS['commit'] + [message])
+            print(f'\n✅ git commit done!\n')
         except Exception as e:
             raise GitOperationError(
                 operation="commit",
@@ -69,6 +65,7 @@ class GitOperations:
         try:
             current_branch = self.repo.get_current_branch()
             self.repo.execute_git_command(GIT_COMMANDS['push'] + ['origin', current_branch])
+            print(f'\n✅ git push done!\n')
         except Exception as e:
             raise GitOperationError(
                 operation="push",
