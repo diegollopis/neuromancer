@@ -1,4 +1,4 @@
-from classes.controller import Controller
+from interfaces.cli import main
 
 if __name__ == "__main__":
-    Controller.main()
+    main()

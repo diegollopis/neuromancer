@@ -45,4 +45,4 @@ feat: add hat wobble
     def print_helper(cls):
         cmd('clear')
         cls.print_message_example()
-        cls.print_references()
+        cls.print_references() 
