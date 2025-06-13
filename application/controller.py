@@ -2,7 +2,7 @@ from typing import Optional, List
 from domain.git_repository import GitRepository
 from domain.git_environment import GitEnvironment
 from domain.git_operations import GitOperations
-from domain.errors import GitError, ValidationError, GitOperationError, AuthorizationError
+from domain.errors import ValidationError, GitOperationError, AuthorizationError
 from utils.helper import Helper
 from config import ERROR_MESSAGES
 
