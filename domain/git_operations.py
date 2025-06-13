@@ -2,11 +2,12 @@ from time import sleep
 from typing import List, Optional
 from .git_repository import GitRepository
 from .errors import handle_git_errors, GitOperationError
+from config import GIT_OPERATIONS_DELAY, GIT_COMMANDS
 
 class GitOperations:
     """Responsible for performing Git operations."""
     
-    def __init__(self, repo: GitRepository, delay: float = 1.0):
+    def __init__(self, repo: GitRepository, delay: float = GIT_OPERATIONS_DELAY):
         """
         Initialize Git operations.
         
@@ -16,25 +17,6 @@ class GitOperations:
         """
         self.repo = repo
         self.delay = delay
-    
-    def _execute_with_delay(self, command: list[str], name: str) -> None:
-        """
-        Executes a Git command with delay and feedback.
-        
-        Args:
-            command: List of command and its arguments
-            name: Name of the operation for feedback
-        """
-        try:
-            self.repo.execute_git_command(command)
-            sleep(self.delay)
-            print(f'\n✅ git {name} done!\n')
-        except Exception as e:
-            raise GitOperationError(
-                operation=name,
-                error=str(e),
-                details=f"Erro ao executar operação 'git {name}'"
-            ) from e
     
     def add_files(self, files: Optional[List[str]] = None) -> None:
         """
@@ -48,14 +30,14 @@ class GitOperations:
         """
         try:
             if files:
-                self.repo.execute_git_command(['git', 'add'] + files)
+                self.repo.execute_git_command(GIT_COMMANDS['add'] + files)
             else:
-                self.repo.execute_git_command(['git', 'add', '.'])
+                self.repo.execute_git_command(GIT_COMMANDS['add'] + ['.'])
         except Exception as e:
             raise GitOperationError(
                 operation="add",
                 error=str(e),
-                details="Erro ao adicionar arquivos ao staging"
+                details="Error adding files to staging"
             ) from e
     
     def commit(self, message: str) -> None:
@@ -69,12 +51,12 @@ class GitOperations:
             GitOperationError: If the commit operation fails
         """
         try:
-            self.repo.execute_git_command(['git', 'commit', '-m', message])
+            self.repo.execute_git_command(GIT_COMMANDS['commit'] + [message])
         except Exception as e:
             raise GitOperationError(
                 operation="commit",
                 error=str(e),
-                details=f"Erro ao criar commit com mensagem: {message}"
+                details=f"Error creating commit with message: {message}"
             ) from e
     
     def push(self) -> None:
@@ -86,12 +68,12 @@ class GitOperations:
         """
         try:
             current_branch = self.repo.get_current_branch()
-            self.repo.execute_git_command(['git', 'push', 'origin', current_branch])
+            self.repo.execute_git_command(GIT_COMMANDS['push'] + ['origin', current_branch])
         except Exception as e:
             raise GitOperationError(
                 operation="push",
                 error=str(e),
-                details=f"Erro ao fazer push para a branch {current_branch}"
+                details=f"Error pushing to branch {current_branch}"
             ) from e
     
     def status(self) -> None:
@@ -102,24 +84,10 @@ class GitOperations:
             GitOperationError: If there is an error getting the status
         """
         try:
-            self.repo.execute_git_command(['git', 'status'])
+            self.repo.execute_git_command(GIT_COMMANDS['status'])
         except Exception as e:
             raise GitOperationError(
                 operation="status",
                 error=str(e),
-                details="Erro ao obter status do repositório"
-            ) from e
-    
-    @handle_git_errors
-    def do_git_steps(self, message: str) -> None:
-        """
-        Executes the complete sequence of Git operations.
-        
-        Args:
-            message: Commit message
-        """
-        self.add_files()
-        self.commit(message)
-        self.push()
-        self.status()
-        print() 
+                details="Error getting repository status"
+            ) from e 

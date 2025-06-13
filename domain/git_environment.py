@@ -8,6 +8,13 @@ from .errors import (
     NoChangesError,
     GitOperationError
 )
+from config import (
+    INTERNET_CHECK_URL,
+    INTERNET_CHECK_TIMEOUT,
+    ERROR_MESSAGES,
+    GIT_COMMANDS,
+    GIT_REPO_CONFIG
+)
 
 class GitEnvironment:
     """Responsible for verifying the Git environment."""
@@ -32,11 +39,11 @@ class GitEnvironment:
             InternetConnectionError: If there is no internet connection
         """
         try:
-            request.urlopen('https://www.google.com', timeout=5)
+            request.urlopen(INTERNET_CHECK_URL, timeout=INTERNET_CHECK_TIMEOUT)
             return True
         except Exception as e:
             raise InternetConnectionError(
-                f"Sem conexão com a internet: {str(e)}"
+                ERROR_MESSAGES['no_internet']['message']
             ) from e
     
     def check_repo_authorization(self) -> bool:
@@ -52,15 +59,15 @@ class GitEnvironment:
         remote_url = self.repo.get_remote_url()
         if not remote_url:
             raise AuthorizationError(
-                message="Repositório remoto não configurado",
-                details="Use 'git remote add origin <url>' para configurar o repositório remoto.",
-                suggestion="Configure o repositório remoto com 'git remote add origin <url>'"
+                message=ERROR_MESSAGES['no_remote']['message'],
+                details=ERROR_MESSAGES['no_remote']['details'],
+                suggestion=ERROR_MESSAGES['no_remote']['suggestion']
             )
         
         try:
             # Primeiro tenta obter informações do repositório remoto
             fetch_result = self.repo.execute_git_command(
-                ["git", "fetch", "--dry-run"],
+                GIT_COMMANDS['fetch'],
                 capture_output=True
             )
             
@@ -68,16 +75,16 @@ class GitEnvironment:
             # Agora verifica se tem permissão de push
             current_branch = self.repo.get_current_branch()
             push_result = self.repo.execute_git_command(
-                ["git", "push", "--dry-run", "origin", current_branch],
+                GIT_COMMANDS['push_dry_run'] + [GIT_REPO_CONFIG['remote_name'], current_branch],
                 capture_output=True
             )
             
             # Verifica se há erros específicos de permissão
             if "Permission denied" in push_result.stderr or "403" in push_result.stderr:
                 raise AuthorizationError(
-                    message="Sem permissão para fazer push no repositório",
-                    details=f"Você não tem permissão para fazer push na branch {current_branch}",
-                    suggestion="Verifique suas credenciais e permissões de acesso ao repositório"
+                    message=ERROR_MESSAGES['no_permission']['message'],
+                    details=f"You don't have permission to push to branch {current_branch}",
+                    suggestion=ERROR_MESSAGES['no_permission']['suggestion']
                 )
             
             return True
@@ -87,34 +94,34 @@ class GitEnvironment:
             
             if "permission denied" in error_msg or "403" in error_msg:
                 raise AuthorizationError(
-                    message="Sem permissão para acessar o repositório",
-                    details="Suas credenciais não têm permissão para acessar este repositório",
-                    suggestion="Verifique suas credenciais e permissões de acesso"
+                    message=ERROR_MESSAGES['no_permission']['message'],
+                    details=ERROR_MESSAGES['no_permission']['details'],
+                    suggestion=ERROR_MESSAGES['no_permission']['suggestion']
                 )
             elif "not found" in error_msg or "404" in error_msg:
                 raise AuthorizationError(
-                    message="Repositório não encontrado",
-                    details="O repositório remoto não existe ou não está acessível",
-                    suggestion="Verifique se a URL do repositório está correta"
+                    message=ERROR_MESSAGES['repo_not_found']['message'],
+                    details=ERROR_MESSAGES['repo_not_found']['details'],
+                    suggestion=ERROR_MESSAGES['repo_not_found']['suggestion']
                 )
             else:
                 raise AuthorizationError(
-                    message="Erro ao verificar autorização",
+                    message="Error checking authorization",
                     details=str(e),
-                    suggestion="Verifique suas credenciais e permissões de acesso"
+                    suggestion="Check your credentials and access permissions"
                 )
             
         except subprocess.TimeoutExpired as e:
             raise AuthorizationError(
-                message="Timeout ao conectar ao repositório remoto",
+                message="Timeout connecting to remote repository",
                 details=str(e),
-                suggestion="Verifique sua conexão com a internet e tente novamente"
+                suggestion="Check your internet connection and try again"
             ) from e
         except Exception as e:
             raise AuthorizationError(
-                message="Erro ao verificar autorização",
+                message="Error checking authorization",
                 details=str(e),
-                suggestion="Verifique suas credenciais e permissões de acesso"
+                suggestion="Check your credentials and access permissions"
             ) from e
     
     def check_changed_files(self) -> bool:
@@ -131,13 +138,13 @@ class GitEnvironment:
         try:
             # Check modified files
             modified = self.repo.execute_git_command(
-                ['git', 'ls-files', '-m'],
+                GIT_COMMANDS['list_modified'],
                 capture_output=True
             )
             
             # Check untracked files
             untracked = self.repo.execute_git_command(
-                ['git', 'ls-files', '--others', '--exclude-standard'],
+                GIT_COMMANDS['list_untracked'],
                 capture_output=True
             )
             
@@ -146,7 +153,7 @@ class GitEnvironment:
             
             if not modified_files and not untracked_files:
                 raise NoChangesError(
-                    "Não há mudanças para commitar neste repositório"
+                    ERROR_MESSAGES['no_changes']['message']
                 )
             
             return True
@@ -156,5 +163,5 @@ class GitEnvironment:
             raise GitOperationError(
                 operation="check_changed_files",
                 error=str(e),
-                details="Erro ao verificar arquivos modificados"
+                details="Error checking modified files"
             ) from e 

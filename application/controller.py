@@ -4,6 +4,7 @@ from domain.git_environment import GitEnvironment
 from domain.git_operations import GitOperations
 from domain.errors import GitError, ValidationError, GitOperationError, AuthorizationError
 from utils.helper import Helper
+from config import ERROR_MESSAGES
 
 class GitController:
     """Controller responsible for coordinating Git operations."""
@@ -49,10 +50,9 @@ class GitController:
         """
         if len(args) < 2:
             raise ValidationError(
-                message="Insufficient arguments",
-                details="Usage: python app.py <commit_type> <message>\n"
-                "Example: python app.py feat add new feature",
-                suggestion="Use 'python app.py help' to see available commit types."
+                message=ERROR_MESSAGES['insufficient_args']['message'],
+                details=ERROR_MESSAGES['insufficient_args']['details'],
+                suggestion=ERROR_MESSAGES['insufficient_args']['suggestion']
             )
         
         if args[1] == "help":
@@ -61,16 +61,18 @@ class GitController:
         
         if len(args) < 3:
             raise ValidationError(
-                message="Commit message not provided",
-                details="Usage: python app.py <commit_type> <message>",
-                suggestion="Provide a descriptive message for the commit"
+                message=ERROR_MESSAGES['no_commit_message']['message'],
+                details=ERROR_MESSAGES['no_commit_message']['details'],
+                suggestion=ERROR_MESSAGES['no_commit_message']['suggestion']
             )
         
         if args[1] not in Helper.commit_message_types:
             raise ValidationError(
-                message=f"Invalid commit type: {args[1]}",
-                details=f"Valid types: {', '.join(Helper.commit_message_types.keys())}",
-                suggestion="Use 'python app.py help' to see valid types."
+                message=ERROR_MESSAGES['invalid_commit_type']['message'].format(commit_type=args[1]),
+                details=ERROR_MESSAGES['invalid_commit_type']['details'].format(
+                    valid_types=', '.join(Helper.commit_message_types.keys())
+                ),
+                suggestion=ERROR_MESSAGES['invalid_commit_type']['suggestion']
             )
         
         commit_message = f"{args[1]}: {' '.join(args[2:])}"
