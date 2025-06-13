@@ -82,6 +82,7 @@ class GitOperations:
         """
         try:
             self.repo.execute_git_command(GIT_COMMANDS['status'])
+            print(f'\n✅ git status done!\n')
         except Exception as e:
             raise GitOperationError(
                 operation="status",
