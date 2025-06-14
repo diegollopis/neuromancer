@@ -65,21 +65,21 @@ class GitEnvironment:
             )
         
         try:
-            # Primeiro tenta obter informações do repositório remoto
+            # First try to get information from the remote repository
             fetch_result = self.repo.execute_git_command(
                 GIT_COMMANDS['fetch'],
                 capture_output=True
             )
             
-            # Se chegou aqui, tem autorização básica
-            # Agora verifica se tem permissão de push
+            # If we got here, we have basic authorization
+            # Now check if we have push permission
             current_branch = self.repo.get_current_branch()
             push_result = self.repo.execute_git_command(
                 GIT_COMMANDS['push_dry_run'] + [GIT_REPO_CONFIG['remote_name'], current_branch],
                 capture_output=True
             )
             
-            # Verifica se há erros específicos de permissão
+            # Check for specific permission errors
             if "Permission denied" in push_result.stderr or "403" in push_result.stderr:
                 raise AuthorizationError(
                     message=ERROR_MESSAGES['no_permission']['message'],

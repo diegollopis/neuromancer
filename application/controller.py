@@ -1,13 +1,17 @@
-from typing import Optional, List
+from typing import List
 from domain.git_repository import GitRepository
 from domain.git_environment import GitEnvironment
 from domain.git_operations import GitOperations
-from domain.errors import ValidationError, GitOperationError, AuthorizationError
+from domain.errors import (
+    ValidationError,
+    GitOperationError,
+    AuthorizationError
+)
 from utils.helper import Helper
 from config import ERROR_MESSAGES
 
 class GitController:
-    """Controller responsible for coordinating Git operations."""
+    """Controller class for Git operations."""
     
     def __init__(self, repo_path: str):
         """
@@ -25,7 +29,7 @@ class GitController:
             self.environment = GitEnvironment(self.repo)
             self.operations = GitOperations(self.repo)
             
-            # Check authorization during initialization
+            # Check repository authorization during initialization
             self.environment.check_repo_authorization()
         except AuthorizationError:
             raise
@@ -142,7 +146,7 @@ class GitController:
             GitOperationError: If there is an error getting the status
         """
         try:
-            self.operations.status()
+            self.operations.get_status()
         except Exception as e:
             raise GitOperationError(
                 operation="show_status",

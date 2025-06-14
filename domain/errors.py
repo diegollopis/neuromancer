@@ -1,16 +1,20 @@
+"""
+Custom error classes for Git operations.
+"""
+
 from typing import Callable, Any, Optional
 from functools import wraps
 from enum import Enum, auto
 
 class ErrorSeverity(Enum):
-    """Níveis de severidade dos erros."""
-    INFO = auto()      # Apenas informativo
-    WARNING = auto()   # Aviso, mas não impede a operação
-    ERROR = auto()     # Erro que impede a operação
-    CRITICAL = auto()  # Erro crítico que pode afetar o sistema
+    """Error severity levels."""
+    INFO = auto()      # Informational only
+    WARNING = auto()   # Warning, but doesn't prevent operation
+    ERROR = auto()     # Error that prevents operation
+    CRITICAL = auto()  # Critical error that may affect the system
 
 class GitError(Exception):
-    """Classe base para erros relacionados ao Git."""
+    """Base class for Git-related errors."""
     
     def __init__(
         self,
@@ -20,13 +24,13 @@ class GitError(Exception):
         suggestion: Optional[str] = None
     ):
         """
-        Inicializa o erro.
+        Initialize the error.
         
         Args:
-            message: Mensagem principal do erro
-            severity: Nível de severidade do erro
-            details: Detalhes adicionais sobre o erro (opcional)
-            suggestion: Sugestão de como resolver o erro (opcional)
+            message: Main error message
+            severity: Error severity level
+            details: Additional error details (optional)
+            suggestion: Suggestion on how to resolve the error (optional)
         """
         self.message = message
         self.severity = severity
@@ -35,32 +39,32 @@ class GitError(Exception):
         super().__init__(self._format_message())
     
     def _format_message(self) -> str:
-        """Formata a mensagem completa do erro."""
+        """Format the complete error message."""
         msg = f"\n❌ {self.message}"
         
         if self.details:
-            msg += f"\n\nDetalhes:\n{self.details}"
+            msg += f"\n\nDetails:\n{self.details}"
         
         if self.suggestion:
-            msg += f"\n\nSugestão:\n{self.suggestion}"
+            msg += f"\n\nSuggestion:\n{self.suggestion}"
         
         return msg
     
     def __str__(self) -> str:
-        """Retorna a mensagem formatada do erro."""
+        """Return the formatted error message."""
         return self._format_message()
 
 class InternetConnectionError(GitError):
-    """Erro quando não há conexão com a internet."""
-    def __init__(self, message: str = "Sem conexão com a internet"):
+    """Error when there is no internet connection."""
+    def __init__(self, message: str = "No internet connection"):
         super().__init__(
             message=message,
             severity=ErrorSeverity.ERROR,
-            suggestion="Verifique sua conexão com a internet e tente novamente."
+            suggestion="Check your internet connection and try again."
         )
 
 class AuthorizationError(GitError):
-    """Erro quando não há autorização para acessar o repositório."""
+    """Error when there is no authorization to access the repository."""
     def __init__(
         self,
         message: str,
@@ -71,29 +75,29 @@ class AuthorizationError(GitError):
             message=message,
             severity=ErrorSeverity.ERROR,
             details=details,
-            suggestion=suggestion or "Verifique suas credenciais e permissões de acesso."
+            suggestion=suggestion or "Check your credentials and access permissions."
         )
 
 class NotGitRepositoryError(GitError):
-    """Erro quando o diretório não é um repositório Git."""
+    """Error when the directory is not a Git repository."""
     def __init__(self, path: str):
         super().__init__(
-            message=f"O diretório '{path}' não é um repositório Git",
+            message=f"The directory '{path}' is not a Git repository",
             severity=ErrorSeverity.ERROR,
-            suggestion="Execute 'git init' para inicializar um repositório Git."
+            suggestion="Run 'git init' to initialize a Git repository."
         )
 
 class NoChangesError(GitError):
-    """Erro quando não há mudanças para commitar."""
-    def __init__(self, message: str = "Não há mudanças para commitar"):
+    """Error when there are no changes to commit."""
+    def __init__(self, message: str = "No changes to commit"):
         super().__init__(
             message=message,
             severity=ErrorSeverity.WARNING,
-            suggestion="Faça algumas alterações nos arquivos antes de tentar commitar."
+            suggestion="Make some changes to the files before trying to commit."
         )
 
 class ValidationError(GitError):
-    """Erro quando há problemas com os argumentos do commit."""
+    """Error when there are problems with commit arguments."""
     def __init__(
         self,
         message: str,
@@ -104,11 +108,11 @@ class ValidationError(GitError):
             message=message,
             severity=ErrorSeverity.ERROR,
             details=details,
-            suggestion=suggestion or "Use 'python app.py help' para ver os tipos de commit disponíveis."
+            suggestion=suggestion or "Use 'python app.py help' to see available commit types."
         )
 
 class GitOperationError(GitError):
-    """Erro quando uma operação do Git falha."""
+    """Error when a Git operation fails."""
     def __init__(
         self,
         operation: str,
@@ -116,20 +120,20 @@ class GitOperationError(GitError):
         details: Optional[str] = None
     ):
         super().__init__(
-            message=f"Erro ao executar operação '{operation}'",
+            message=f"Error executing operation '{operation}'",
             severity=ErrorSeverity.ERROR,
-            details=f"Erro: {error}\n{details if details else ''}",
-            suggestion="Verifique o status do repositório com 'git status'."
+            details=f"Error: {error}\n{details if details else ''}",
+            suggestion="Check repository status with 'git status'."
         )
 
 def handle_git_errors(func: Callable) -> Callable:
     """
-    Decorator para tratar erros do Git de forma centralizada.
+    Decorator to handle Git errors centrally.
     
-    Este decorator:
-    1. Captura exceções GitError
-    2. Formata a mensagem de erro
-    3. Retorna None em caso de erro
+    This decorator:
+    1. Catches GitError exceptions
+    2. Formats the error message
+    3. Returns None in case of error
     """
     @wraps(func)
     def wrapper(*args, **kwargs) -> Any:
@@ -144,6 +148,6 @@ def handle_git_errors(func: Callable) -> Callable:
                 print(str(e))
             return None
         except Exception as e:
-            print(f"\n❌ Erro inesperado: {str(e)}")
+            print(f"\n❌ Unexpected error: {str(e)}")
             return None
     return wrapper 

@@ -49,7 +49,7 @@ class GitRepository:
             raise GitOperationError(
                 operation="get_current_branch",
                 error=str(e),
-                details="Não foi possível obter o nome da branch atual"
+                details="Could not get current branch name"
             ) from e
     
     def get_remote_url(self) -> Optional[str]:
@@ -72,7 +72,7 @@ class GitRepository:
             raise GitOperationError(
                 operation="get_remote_url",
                 error=str(e),
-                details="Não foi possível obter a URL do repositório remoto"
+                details="Could not get remote repository URL"
             ) from e
     
     def execute_git_command(self, command: list[str], capture_output: bool = False) -> subprocess.CompletedProcess:
@@ -101,11 +101,11 @@ class GitRepository:
             raise GitOperationError(
                 operation=" ".join(command),
                 error=e.stderr,
-                details=f"Comando Git falhou com código de saída {e.returncode}"
+                details=f"Git command failed with exit code {e.returncode}"
             ) from e
         except Exception as e:
             raise GitOperationError(
                 operation=" ".join(command),
                 error=str(e),
-                details="Erro inesperado ao executar comando Git"
+                details="Unexpected error executing Git command"
             ) from e 
