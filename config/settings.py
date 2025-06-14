@@ -31,48 +31,74 @@ COMMIT_MESSAGE_REFERENCES = [
 # Git Operations Settings
 GIT_OPERATIONS_DELAY = 1.0  # Time between operations in seconds
 
-# Git Environment Settings
+# Git Command Settings
+GIT_COMMANDS = {
+    'add': ['git', 'add'],
+    'commit': ['git', 'commit', '-m'],
+    'push': ['git', 'push'],
+    'status': ['git', 'status'],
+    'fetch': ['git', 'fetch', '--dry-run'],
+    'push_dry_run': ['git', 'push', '--dry-run'],
+    'get_branch': ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
+    'get_remote': ['git', 'config', '--get', 'remote.origin.url'],
+    'list_modified': ['git', 'ls-files', '-m'],
+    'list_untracked': ['git', 'ls-files', '--others', '--exclude-standard']
+}
+
+# Environment Settings
 INTERNET_CHECK_URL = 'https://www.google.com'
 INTERNET_CHECK_TIMEOUT = 5  # Timeout in seconds
+
+# Git Repository Settings
+GIT_REPO_CONFIG = {
+    'remote_name': 'origin',
+    'default_branch': 'main'
+}
 
 # Error Messages
 ERROR_MESSAGES = {
     'insufficient_args': {
-        'message': 'Insufficient arguments',
-        'details': 'Usage: python app.py <commit_type> <message>\nExample: python app.py feat add new feature',
-        'suggestion': 'Use \'python app.py help\' to see available commit types.'
+        'details': 'No arguments provided.',
+        'suggestion': 'Use --help to see available options.'
     },
     'no_commit_message': {
-        'message': 'Commit message not provided',
-        'details': 'Usage: python app.py <commit_type> <message>',
-        'suggestion': 'Provide a descriptive message for the commit'
+        'details': 'No commit message provided.',
+        'suggestion': 'Provide a commit message using the -m or --message option.'
     },
     'invalid_commit_type': {
-        'message': 'Invalid commit type: {commit_type}',
-        'details': 'Valid types: {valid_types}',
-        'suggestion': 'Use \'python app.py help\' to see valid types.'
+        'details': 'Invalid commit type: {}. Valid types are: {}',
+        'suggestion': 'Use one of the valid commit types: feat, fix, docs, style, refactor, test, chore.'
     },
-    'no_internet': {
-        'message': 'No internet connection',
+    'internet_connection': {
+        'details': 'No internet connection available.',
         'suggestion': 'Check your internet connection and try again.'
     },
+    'git_not_installed': {
+        'details': 'Git is not installed on the system.',
+        'suggestion': 'Install Git and try again.'
+    },
+    'not_git_repo': {
+        'details': 'Current directory is not a Git repository.',
+        'suggestion': 'Run git init to initialize a Git repository.'
+    },
     'no_remote': {
-        'message': 'Remote repository not configured',
-        'details': 'Use \'git remote add origin <url>\' to configure the remote repository.',
-        'suggestion': 'Configure the remote repository with \'git remote add origin <url>\''
+        'details': 'No remote repository configured.',
+        'suggestion': 'Configure a remote repository using git remote add.'
     },
-    'no_permission': {
-        'message': 'No permission to access repository',
-        'details': 'Your credentials do not have permission to access this repository',
-        'suggestion': 'Check your credentials and access permissions'
+    'auth_failed': {
+        'details': 'Authentication failed with remote repository.',
+        'suggestion': 'Check your credentials and try again.'
     },
-    'repo_not_found': {
-        'message': 'Repository not found',
-        'details': 'The remote repository does not exist or is not accessible',
-        'suggestion': 'Check if the repository URL is correct'
+    'push_failed': {
+        'details': 'Failed to push changes to remote repository.',
+        'suggestion': 'Check your connection and try again.'
     },
-    'no_changes': {
-        'message': 'No changes to commit',
-        'suggestion': 'Make some changes to the files before trying to commit.'
+    'commit_failed': {
+        'details': 'Failed to create commit.',
+        'suggestion': 'Check if there are changes to commit.'
+    },
+    'add_failed': {
+        'details': 'Failed to add files to staging.',
+        'suggestion': 'Check if there are files to add.'
     }
 } 

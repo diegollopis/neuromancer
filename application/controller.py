@@ -2,11 +2,7 @@ from typing import List
 from domain.git_repository import GitRepository
 from domain.git_environment import GitEnvironment
 from domain.git_operations import GitOperations
-from domain.errors import (
-    ValidationError,
-    GitOperationError,
-    AuthorizationError
-)
+from domain.errors import GitError
 from utils.helper import Helper
 from config import ERROR_MESSAGES
 
@@ -21,8 +17,7 @@ class GitController:
             repo_path: Path to the Git repository
         
         Raises:
-            GitOperationError: If there is an error initializing the repository
-            AuthorizationError: If there is no authorization to access the repository
+            GitError: If there is an error initializing the repository
         """
         try:
             self.repo = GitRepository(repo_path)
@@ -31,10 +26,10 @@ class GitController:
             
             # Check repository authorization during initialization
             self.environment.check_repo_authorization()
-        except AuthorizationError:
+        except GitError:
             raise
         except Exception as e:
-            raise GitOperationError(
+            raise GitError.operation_failed(
                 operation="initialize_controller",
                 error=str(e),
                 details="Error initializing Git controller"
@@ -48,13 +43,10 @@ class GitController:
             args: List of command line arguments
         
         Raises:
-            ValidationError: If the arguments are invalid
-            GitOperationError: If there is an error in the Git operation
-            AuthorizationError: If there is no authorization to access the repository
+            GitError: If there is an error in the Git operation
         """
         if len(args) < 2:
-            raise ValidationError(
-                message=ERROR_MESSAGES['insufficient_args']['message'],
+            raise GitError.invalid_args(
                 details=ERROR_MESSAGES['insufficient_args']['details'],
                 suggestion=ERROR_MESSAGES['insufficient_args']['suggestion']
             )
@@ -64,15 +56,13 @@ class GitController:
             return
         
         if len(args) < 3:
-            raise ValidationError(
-                message=ERROR_MESSAGES['no_commit_message']['message'],
+            raise GitError.invalid_args(
                 details=ERROR_MESSAGES['no_commit_message']['details'],
                 suggestion=ERROR_MESSAGES['no_commit_message']['suggestion']
             )
         
         if args[1] not in Helper.commit_message_types:
-            raise ValidationError(
-                message=ERROR_MESSAGES['invalid_commit_type']['message'].format(commit_type=args[1]),
+            raise GitError.invalid_args(
                 details=ERROR_MESSAGES['invalid_commit_type']['details'].format(
                     valid_types=', '.join(Helper.commit_message_types.keys())
                 ),
@@ -93,15 +83,17 @@ class GitController:
         Note: Repository authorization is checked during initialization.
         
         Raises:
-            GitOperationError: If any validation fails
+            GitError: If any validation fails
         """
         try:
             # Check changes first, as it's faster
             self.environment.check_changed_files()
             # Check internet connection last
             self.environment.check_internet_connection()
+        except GitError:
+            raise
         except Exception as e:
-            raise GitOperationError(
+            raise GitError.operation_failed(
                 operation="validate_environment",
                 error=str(e),
                 details="Error validating Git environment"
@@ -123,7 +115,7 @@ class GitController:
             message: Commit message
         
         Raises:
-            GitOperationError: If any operation fails
+            GitError: If any operation fails
         """
         try:
             self.validate_environment()
@@ -131,8 +123,10 @@ class GitController:
             self.operations.commit(message)
             self.operations.push()
             self.operations.status()
+        except GitError:
+            raise
         except Exception as e:
-            raise GitOperationError(
+            raise GitError.operation_failed(
                 operation="execute_commit",
                 error=str(e),
                 details=f"Error executing commit with message: {message}"
@@ -143,12 +137,14 @@ class GitController:
         Shows the current status of the repository.
         
         Raises:
-            GitOperationError: If there is an error getting the status
+            GitError: If there is an error getting the status
         """
         try:
-            self.operations.get_status()
+            self.operations.status()
+        except GitError:
+            raise
         except Exception as e:
-            raise GitOperationError(
+            raise GitError.operation_failed(
                 operation="show_status",
                 error=str(e),
                 details="Error showing repository status"

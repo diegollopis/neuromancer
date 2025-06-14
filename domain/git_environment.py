@@ -2,12 +2,7 @@ from urllib import request
 import subprocess
 from typing import List
 from .git_repository import GitRepository
-from .errors import (
-    InternetConnectionError,
-    AuthorizationError,
-    NoChangesError,
-    GitOperationError
-)
+from .errors import GitError
 from config import (
     INTERNET_CHECK_URL,
     INTERNET_CHECK_TIMEOUT,
@@ -36,15 +31,13 @@ class GitEnvironment:
             bool: True if there is a connection
         
         Raises:
-            InternetConnectionError: If there is no internet connection
+            GitError: If there is no internet connection
         """
         try:
             request.urlopen(INTERNET_CHECK_URL, timeout=INTERNET_CHECK_TIMEOUT)
             return True
         except Exception as e:
-            raise InternetConnectionError(
-                ERROR_MESSAGES['no_internet']['message']
-            ) from e
+            raise GitError.no_internet() from e
     
     def check_repo_authorization(self) -> bool:
         """
@@ -54,15 +47,11 @@ class GitEnvironment:
             bool: True if there is authorization
         
         Raises:
-            AuthorizationError: If there is no authorization or if the remote is not configured
+            GitError: If there is no authorization or if the remote is not configured
         """
         remote_url = self.repo.get_remote_url()
         if not remote_url:
-            raise AuthorizationError(
-                message=ERROR_MESSAGES['no_remote']['message'],
-                details=ERROR_MESSAGES['no_remote']['details'],
-                suggestion=ERROR_MESSAGES['no_remote']['suggestion']
-            )
+            raise GitError.no_remote()
         
         try:
             # First try to get information from the remote repository
@@ -81,11 +70,7 @@ class GitEnvironment:
             
             # Check for specific permission errors
             if "Permission denied" in push_result.stderr or "403" in push_result.stderr:
-                raise AuthorizationError(
-                    message=ERROR_MESSAGES['no_permission']['message'],
-                    details=f"You don't have permission to push to branch {current_branch}",
-                    suggestion=ERROR_MESSAGES['no_permission']['suggestion']
-                )
+                raise GitError.no_permission(current_branch)
             
             return True
             
@@ -93,35 +78,27 @@ class GitEnvironment:
             error_msg = e.stderr.lower() if e.stderr else str(e).lower()
             
             if "permission denied" in error_msg or "403" in error_msg:
-                raise AuthorizationError(
-                    message=ERROR_MESSAGES['no_permission']['message'],
-                    details=ERROR_MESSAGES['no_permission']['details'],
-                    suggestion=ERROR_MESSAGES['no_permission']['suggestion']
-                )
+                raise GitError.no_permission()
             elif "not found" in error_msg or "404" in error_msg:
-                raise AuthorizationError(
-                    message=ERROR_MESSAGES['repo_not_found']['message'],
-                    details=ERROR_MESSAGES['repo_not_found']['details'],
-                    suggestion=ERROR_MESSAGES['repo_not_found']['suggestion']
-                )
+                raise GitError.repo_not_found()
             else:
-                raise AuthorizationError(
-                    message="Error checking authorization",
-                    details=str(e),
-                    suggestion="Check your credentials and access permissions"
+                raise GitError.operation_failed(
+                    operation="check_authorization",
+                    error=str(e),
+                    details="Error checking repository authorization"
                 )
             
         except subprocess.TimeoutExpired as e:
-            raise AuthorizationError(
-                message="Timeout connecting to remote repository",
-                details=str(e),
-                suggestion="Check your internet connection and try again"
+            raise GitError.operation_failed(
+                operation="check_authorization",
+                error=str(e),
+                details="Timeout connecting to remote repository"
             ) from e
         except Exception as e:
-            raise AuthorizationError(
-                message="Error checking authorization",
-                details=str(e),
-                suggestion="Check your credentials and access permissions"
+            raise GitError.operation_failed(
+                operation="check_authorization",
+                error=str(e),
+                details="Error checking repository authorization"
             ) from e
     
     def check_changed_files(self) -> bool:
@@ -132,8 +109,7 @@ class GitEnvironment:
             bool: True if there are modifications
         
         Raises:
-            NoChangesError: If there are no modifications
-            GitOperationError: If there is an error checking files
+            GitError: If there are no modifications or if there is an error checking files
         """
         try:
             # Check modified files
@@ -152,15 +128,13 @@ class GitEnvironment:
             untracked_files = untracked.stdout.splitlines()
             
             if not modified_files and not untracked_files:
-                raise NoChangesError(
-                    ERROR_MESSAGES['no_changes']['message']
-                )
+                raise GitError.no_changes()
             
             return True
-        except NoChangesError:
+        except GitError:
             raise
         except Exception as e:
-            raise GitOperationError(
+            raise GitError.operation_failed(
                 operation="check_changed_files",
                 error=str(e),
                 details="Error checking modified files"

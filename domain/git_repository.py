@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 from typing import Optional
-from .errors import NotGitRepositoryError, GitOperationError
+from .errors import GitError
 
 class GitRepository:
     """Represents a Git repository and its basic operations."""
@@ -14,7 +14,7 @@ class GitRepository:
             repo_path: Path to the Git repository
         
         Raises:
-            NotGitRepositoryError: If the directory is not a valid Git repository
+            GitError: If the directory is not a valid Git repository
         """
         self.repo_path = Path(repo_path)
         self._validate_git_repo()
@@ -24,10 +24,10 @@ class GitRepository:
         Validates if the directory is a valid Git repository.
         
         Raises:
-            NotGitRepositoryError: If the directory is not a Git repository
+            GitError: If the directory is not a Git repository
         """
         if not (self.repo_path / '.git').exists():
-            raise NotGitRepositoryError(str(self.repo_path))
+            raise GitError.not_git_repo(str(self.repo_path))
     
     def get_current_branch(self) -> str:
         """
@@ -37,7 +37,7 @@ class GitRepository:
             str: Name of the current branch
         
         Raises:
-            GitOperationError: If there is an error getting the branch name
+            GitError: If there is an error getting the branch name
         """
         try:
             result = self.execute_git_command(
@@ -46,7 +46,7 @@ class GitRepository:
             )
             return result.stdout.strip()
         except Exception as e:
-            raise GitOperationError(
+            raise GitError.operation_failed(
                 operation="get_current_branch",
                 error=str(e),
                 details="Could not get current branch name"
@@ -60,7 +60,7 @@ class GitRepository:
             Optional[str]: Remote URL if configured, None otherwise
         
         Raises:
-            GitOperationError: If there is an error getting the remote URL
+            GitError: If there is an error getting the remote URL
         """
         try:
             result = self.execute_git_command(
@@ -69,7 +69,7 @@ class GitRepository:
             )
             return result.stdout.strip() if result.stdout else None
         except Exception as e:
-            raise GitOperationError(
+            raise GitError.operation_failed(
                 operation="get_remote_url",
                 error=str(e),
                 details="Could not get remote repository URL"
@@ -87,7 +87,7 @@ class GitRepository:
             subprocess.CompletedProcess: Command execution result
         
         Raises:
-            GitOperationError: If the command execution fails
+            GitError: If the command execution fails
         """
         try:
             return subprocess.run(
@@ -98,13 +98,13 @@ class GitRepository:
                 text=True
             )
         except subprocess.CalledProcessError as e:
-            raise GitOperationError(
+            raise GitError.operation_failed(
                 operation=" ".join(command),
                 error=e.stderr,
                 details=f"Git command failed with exit code {e.returncode}"
             ) from e
         except Exception as e:
-            raise GitOperationError(
+            raise GitError.operation_failed(
                 operation=" ".join(command),
                 error=str(e),
                 details="Unexpected error executing Git command"

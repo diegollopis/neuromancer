@@ -1,7 +1,7 @@
 from time import sleep
 from typing import List, Optional
 from .git_repository import GitRepository
-from .errors import handle_git_errors, GitOperationError
+from .errors import GitError
 from config import GIT_OPERATIONS_DELAY, GIT_COMMANDS
 
 class GitOperations:
@@ -23,13 +23,13 @@ class GitOperations:
         Adds files to the staging area.
         
         Raises:
-            GitOperationError: If the add operation fails
+            GitError: If the add operation fails
         """
         try:
             self.repo.execute_git_command(GIT_COMMANDS['add'] + ['.'])
             print(f'\n✅ git add done!\n')
         except Exception as e:
-            raise GitOperationError(
+            raise GitError.operation_failed(
                 operation="add",
                 error=str(e),
                 details="Error adding files to staging"
@@ -43,13 +43,13 @@ class GitOperations:
             message: Commit message
         
         Raises:
-            GitOperationError: If the commit operation fails
+            GitError: If the commit operation fails
         """
         try:
             self.repo.execute_git_command(GIT_COMMANDS['commit'] + [message])
             print(f'\n✅ git commit done!\n')
         except Exception as e:
-            raise GitOperationError(
+            raise GitError.operation_failed(
                 operation="commit",
                 error=str(e),
                 details=f"Error creating commit with message: {message}"
@@ -60,14 +60,14 @@ class GitOperations:
         Pushes commits to the remote repository.
         
         Raises:
-            GitOperationError: If the push operation fails
+            GitError: If the push operation fails
         """
         try:
             current_branch = self.repo.get_current_branch()
             self.repo.execute_git_command(GIT_COMMANDS['push'] + ['origin', current_branch])
             print(f'\n✅ git push done!\n')
         except Exception as e:
-            raise GitOperationError(
+            raise GitError.operation_failed(
                 operation="push",
                 error=str(e),
                 details=f"Error pushing to branch {current_branch}"
@@ -78,13 +78,13 @@ class GitOperations:
         Shows the current status of the repository.
         
         Raises:
-            GitOperationError: If there is an error getting the status
+            GitError: If there is an error getting the status
         """
         try:
             self.repo.execute_git_command(GIT_COMMANDS['status'])
             print(f'\n✅ git status done!\n')
         except Exception as e:
-            raise GitOperationError(
+            raise GitError.operation_failed(
                 operation="status",
                 error=str(e),
                 details="Error getting repository status"
