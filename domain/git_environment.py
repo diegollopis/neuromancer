@@ -6,7 +6,6 @@ from .errors import GitError
 from config import (
     INTERNET_CHECK_URL,
     INTERNET_CHECK_TIMEOUT,
-    ERROR_MESSAGES,
     GIT_COMMANDS,
     GIT_REPO_CONFIG
 )
@@ -37,7 +36,7 @@ class GitEnvironment:
             request.urlopen(INTERNET_CHECK_URL, timeout=INTERNET_CHECK_TIMEOUT)
             return True
         except Exception as e:
-            raise GitError.no_internet() from e
+            raise GitError.internet_connection() from e
     
     def check_repo_authorization(self) -> bool:
         """
@@ -47,7 +46,7 @@ class GitEnvironment:
             bool: True if there is authorization
         
         Raises:
-            GitError: If there is no authorization or if the remote is not configured
+            GitError: If there is no authorization, no internet connection, or if the remote is not configured
         """
         remote_url = self.repo.get_remote_url()
         if not remote_url:
@@ -70,15 +69,20 @@ class GitEnvironment:
             
             # Check for specific permission errors
             if "Permission denied" in push_result.stderr or "403" in push_result.stderr:
-                raise GitError.no_permission(current_branch)
+                raise GitError.auth_failed()
             
             return True
             
         except subprocess.CalledProcessError as e:
             error_msg = e.stderr.lower() if e.stderr else str(e).lower()
             
+            # Check for internet connection errors first
+            if any(msg in error_msg for msg in ["could not resolve host", "failed to connect", "connection refused", "network is unreachable"]):
+                raise GitError.internet_connection()
+            
+            # Then check for other specific errors
             if "permission denied" in error_msg or "403" in error_msg:
-                raise GitError.no_permission()
+                raise GitError.auth_failed()
             elif "not found" in error_msg or "404" in error_msg:
                 raise GitError.repo_not_found()
             else:
@@ -89,12 +93,14 @@ class GitEnvironment:
                 )
             
         except subprocess.TimeoutExpired as e:
-            raise GitError.operation_failed(
-                operation="check_authorization",
-                error=str(e),
-                details="Timeout connecting to remote repository"
-            ) from e
+            # Timeout usually means internet connection issues
+            raise GitError.internet_connection() from e
         except Exception as e:
+            # Check if it's a network-related error
+            error_msg = str(e).lower()
+            if any(msg in error_msg for msg in ["connection", "network", "host", "timeout", "refused"]):
+                raise GitError.internet_connection() from e
+            
             raise GitError.operation_failed(
                 operation="check_authorization",
                 error=str(e),

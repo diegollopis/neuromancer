@@ -1,10 +1,10 @@
+#!/usr/bin/env python3
 from typing import List
 from domain.git_repository import GitRepository
 from domain.git_environment import GitEnvironment
 from domain.git_operations import GitOperations
 from domain.errors import GitError
 from utils.helper import Helper
-from config import ERROR_MESSAGES
 
 class GitController:
     """Controller class for Git operations."""
@@ -23,9 +23,6 @@ class GitController:
             self.repo = GitRepository(repo_path)
             self.environment = GitEnvironment(self.repo)
             self.operations = GitOperations(self.repo)
-            
-            # Check repository authorization during initialization
-            self.environment.check_repo_authorization()
         except GitError:
             raise
         except Exception as e:
@@ -45,51 +42,59 @@ class GitController:
         Raises:
             GitError: If there is an error in the Git operation
         """
+        # Check if there are enough arguments
         if len(args) < 2:
             raise GitError.invalid_args(
-                details=ERROR_MESSAGES['insufficient_args']['details'],
-                suggestion=ERROR_MESSAGES['insufficient_args']['suggestion']
+                details="No arguments provided.\nExpected: neuromancer <commit_type> <message>",
+                suggestion="Use 'neuromancer help' to see available options"
             )
         
+        # Check if it's a help request
         if args[1] == "help":
             Helper.print_helper()
             return
         
+        # Check if there's a commit message
         if len(args) < 3:
             raise GitError.invalid_args(
-                details=ERROR_MESSAGES['no_commit_message']['details'],
-                suggestion=ERROR_MESSAGES['no_commit_message']['suggestion']
+                details="No commit message provided.\nExpected: neuromancer <commit_type> <message>",
+                suggestion="Provide a commit message after the commit type"
             )
         
-        if args[1] not in Helper.commit_message_types:
+        # Check if commit type is valid
+        commit_type = args[1]
+        if commit_type not in Helper.commit_message_types:
+            valid_types = ', '.join(f"'{t}'" for t in Helper.commit_message_types.keys())
             raise GitError.invalid_args(
-                details=ERROR_MESSAGES['invalid_commit_type']['details'].format(
-                    valid_types=', '.join(Helper.commit_message_types.keys())
-                ),
-                suggestion=ERROR_MESSAGES['invalid_commit_type']['suggestion']
+                details=f"Invalid commit type: '{commit_type}'.\nValid types are: {valid_types}",
+                suggestion="Use one of the valid commit types above"
             )
         
-        commit_message = f"{args[1]}: {' '.join(args[2:])}"
+        # Build and execute commit
+        commit_message = f"{commit_type}: {' '.join(args[2:])}"
         self.execute_commit(commit_message)
     
     def validate_environment(self):
         """
         Validates the Git environment before operations.
         
-        This method checks:
-        1. Changed files
-        2. Internet connection
-        
-        Note: Repository authorization is checked during initialization.
+        This method checks in order:
+        1. Internet connection (first, as it's a basic requirement)
+        2. Repository authorization (after confirming internet connection)
+        3. Changed files (after confirming both internet and authorization)
         
         Raises:
             GitError: If any validation fails
         """
         try:
-            # Check changes first, as it's faster
-            self.environment.check_changed_files()
-            # Check internet connection last
+            # Check internet connection first, as it's a basic requirement
             self.environment.check_internet_connection()
+            
+            # Then check repository authorization
+            self.environment.check_repo_authorization()
+            
+            # Finally check for changes
+            self.environment.check_changed_files()
         except GitError:
             raise
         except Exception as e:

@@ -13,18 +13,12 @@ def main():
         controller = GitController(repo_path=os.getcwd())
         controller.process_commit(sys.argv)
     except GitError as e:
-        # Exibe apenas a mensagem formatada do erro, sem o traceback
-        print(f"\n❌ {e.title}\n")
-        if e.details:
-            print(f"Details:\n{e.details}\n")
-        if e.suggestion:
-            print(f"Suggestion:\n{e.suggestion}\n")
+        # Display formatted error message
+        print(f"\n{str(e)}\n")
         sys.exit(1)
     except Exception as e:
-        # Para erros não tratados, exibe uma mensagem genérica
-        print("\n❌ An unexpected error occurred\n")
-        print(f"Details:\n{str(e)}\n")
-        print("Suggestion:\nPlease report this issue to the project maintainers.\n")
+        # For unhandled errors, display a generic message
+        print("\n❌ An unexpected error occurred. Please report this issue.\n")
         sys.exit(1)
 
 if __name__ == "__main__":

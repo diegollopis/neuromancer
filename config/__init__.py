@@ -15,10 +15,7 @@ from .settings import (
     
     # Operation settings
     GIT_OPERATIONS_DELAY,
-    GIT_COMMANDS,
-    
-    # Error messages
-    ERROR_MESSAGES
+    GIT_COMMANDS
 )
 
 __all__ = [
@@ -34,8 +31,5 @@ __all__ = [
     
     # Operation settings
     'GIT_OPERATIONS_DELAY',
-    'GIT_COMMANDS',
-    
-    # Error messages
-    'ERROR_MESSAGES'
+    'GIT_COMMANDS'
 ] 
