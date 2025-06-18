@@ -36,7 +36,6 @@ GIT_COMMANDS = {
     'add': ['git', 'add'],
     'commit': ['git', 'commit', '-m'],
     'push': ['git', 'push'],
-    'status': ['git', 'status'],
     'fetch': ['git', 'fetch', '--dry-run'],
     'push_dry_run': ['git', 'push', '--dry-run'],
     'get_branch': ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],

@@ -3,7 +3,6 @@ from typing import List
 from domain.git_repository import GitRepository
 from domain.git_environment import GitEnvironment
 from domain.git_operations import GitOperations
-from domain.errors import GitError
 from utils.helper import Helper
 
 class GitController:
@@ -15,22 +14,10 @@ class GitController:
         
         Args:
             repo_path: Path to the Git repository
-        
-        Raises:
-            GitError: If there is an error initializing the repository
         """
-        try:
-            self.repo = GitRepository(repo_path)
-            self.environment = GitEnvironment(self.repo)
-            self.operations = GitOperations(self.repo)
-        except GitError:
-            raise
-        except Exception as e:
-            raise GitError.operation_failed(
-                operation="initialize_controller",
-                error=str(e),
-                details="Error initializing Git controller"
-            ) from e
+        self.repo = GitRepository(repo_path)
+        self.environment = GitEnvironment(self.repo)
+        self.operations = GitOperations(self.repo)
     
     def process_commit(self, args: List[str]):
         """
@@ -38,15 +25,12 @@ class GitController:
         
         Args:
             args: List of command line arguments
-        
-        Raises:
-            GitError: If there is an error in the Git operation
         """
         # Check if there are enough arguments
         if len(args) < 2:
-            raise GitError.invalid_args(
-                details="No arguments provided.\nExpected: neuromancer <commit_type> <message>",
-                suggestion="Use 'neuromancer help' to see available options"
+            Helper.print_error(
+                "No arguments provided.",
+                "Expected usage: neuromancer <commit_type> <message>\nUse 'neuromancer help' to see available options"
             )
         
         # Check if it's a help request
@@ -56,18 +40,18 @@ class GitController:
         
         # Check if there's a commit message
         if len(args) < 3:
-            raise GitError.invalid_args(
-                details="No commit message provided.\nExpected: neuromancer <commit_type> <message>",
-                suggestion="Provide a commit message after the commit type"
+            Helper.print_error(
+                "No commit message provided.",
+                "Expected usage: neuromancer <commit_type> <message>\nProvide a commit message after the commit type"
             )
         
         # Check if commit type is valid
         commit_type = args[1]
         if commit_type not in Helper.commit_message_types:
             valid_types = ', '.join(f"'{t}'" for t in Helper.commit_message_types.keys())
-            raise GitError.invalid_args(
-                details=f"Invalid commit type: '{commit_type}'.\nValid types are: {valid_types}",
-                suggestion="Use one of the valid commit types above"
+            Helper.print_error(
+                f"Invalid commit type: '{commit_type}'.",
+                f"Valid types are: {valid_types}\nUse one of the valid types above"
             )
         
         # Build and execute commit
@@ -82,27 +66,19 @@ class GitController:
         1. Internet connection (first, as it's a basic requirement)
         2. Repository authorization (after confirming internet connection)
         3. Changed files (after confirming both internet and authorization)
-        
-        Raises:
-            GitError: If any validation fails
         """
-        try:
-            # Check internet connection first, as it's a basic requirement
-            self.environment.check_internet_connection()
-            
-            # Then check repository authorization
-            self.environment.check_repo_authorization()
-            
-            # Finally check for changes
-            self.environment.check_changed_files()
-        except GitError:
-            raise
-        except Exception as e:
-            raise GitError.operation_failed(
-                operation="validate_environment",
-                error=str(e),
-                details="Error validating Git environment"
-            ) from e
+        Helper.print_info("🔍 Validating Git environment...")
+        
+        # Check internet connection first, as it's a basic requirement
+        self.environment.check_internet_connection()
+        
+        # Then check repository authorization
+        self.environment.check_repo_authorization()
+        
+        # Finally check for changes
+        self.environment.check_changed_files()
+        
+        Helper.print_success("Environment successfully validated!")
     
     def execute_commit(self, message: str):
         """
@@ -114,43 +90,14 @@ class GitController:
         3. Creates a commit
         4. Pushes to remote
         
-        Note: Repository authorization is already checked during initialization.
-        
         Args:
             message: Commit message
+        """
+        Helper.print_info(f"🚀 Starting commit process: {message}")
         
-        Raises:
-            GitError: If any operation fails
-        """
-        try:
-            self.validate_environment()
-            self.operations.add_files()
-            self.operations.commit(message)
-            self.operations.push()
-            self.operations.status()
-        except GitError:
-            raise
-        except Exception as e:
-            raise GitError.operation_failed(
-                operation="execute_commit",
-                error=str(e),
-                details=f"Error executing commit with message: {message}"
-            ) from e
-    
-    def show_status(self):
-        """
-        Shows the current status of the repository.
+        self.validate_environment()
+        self.operations.add_files()
+        self.operations.commit(message)
+        self.operations.push()
         
-        Raises:
-            GitError: If there is an error getting the status
-        """
-        try:
-            self.operations.status()
-        except GitError:
-            raise
-        except Exception as e:
-            raise GitError.operation_failed(
-                operation="show_status",
-                error=str(e),
-                details="Error showing repository status"
-            ) from e 
+        Helper.print_success("Commit process completed successfully!") 

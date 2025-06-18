@@ -2,7 +2,7 @@
 import sys
 import os
 from application.controller import GitController
-from domain.errors import GitError
+from utils.helper import Helper
 
 def main():
     """
@@ -12,14 +12,14 @@ def main():
     try:
         controller = GitController(repo_path=os.getcwd())
         controller.process_commit(sys.argv)
-    except GitError as e:
-        # Display formatted error message
-        print(f"\n{str(e)}\n")
-        sys.exit(1)
+    except KeyboardInterrupt:
+        Helper.print_error("Operation cancelled by user.")
     except Exception as e:
         # For unhandled errors, display a generic message
-        print("\n❌ An unexpected error occurred. Please report this issue.\n")
-        sys.exit(1)
+        Helper.print_error(
+            f"Unexpected error: {str(e)}",
+            "Please report this issue."
+        )
 
 if __name__ == "__main__":
     main()

@@ -1,8 +1,8 @@
 from time import sleep
 from typing import List, Optional
 from .git_repository import GitRepository
-from .errors import GitError
 from config import GIT_OPERATIONS_DELAY, GIT_COMMANDS
+from utils.helper import Helper
 
 class GitOperations:
     """Responsible for performing Git operations."""
@@ -21,19 +21,13 @@ class GitOperations:
     def add_files(self):
         """
         Adds files to the staging area.
-        
-        Raises:
-            GitError: If the add operation fails
         """
-        try:
-            self.repo.execute_git_command(GIT_COMMANDS['add'] + ['.'])
-            print(f'\n✅ git add done!\n')
-        except Exception as e:
-            raise GitError.operation_failed(
-                operation="add",
-                error=str(e),
-                details="Error adding files to staging"
-            ) from e
+        Helper.print_info("📁 Adding files...")
+        result = self.repo.execute_git_command(GIT_COMMANDS['add'] + ['.'])
+        if result.returncode == 0:
+            Helper.print_success("git add completed!")
+        else:
+            Helper.print_error("Error adding files")
     
     def commit(self, message: str):
         """
@@ -41,51 +35,22 @@ class GitOperations:
         
         Args:
             message: Commit message
-        
-        Raises:
-            GitError: If the commit operation fails
         """
-        try:
-            self.repo.execute_git_command(GIT_COMMANDS['commit'] + [message])
-            print(f'\n✅ git commit done!\n')
-        except Exception as e:
-            raise GitError.operation_failed(
-                operation="commit",
-                error=str(e),
-                details=f"Error creating commit with message: {message}"
-            ) from e
+        Helper.print_info(f"💾 Creating commit: {message}")
+        result = self.repo.execute_git_command(GIT_COMMANDS['commit'] + [message])
+        if result.returncode == 0:
+            Helper.print_success("git commit completed!")
+        else:
+            Helper.print_error("Error creating commit")
     
     def push(self):
         """
         Pushes commits to the remote repository.
-        
-        Raises:
-            GitError: If the push operation fails
         """
-        try:
-            current_branch = self.repo.get_current_branch()
-            self.repo.execute_git_command(GIT_COMMANDS['push'] + ['origin', current_branch])
-            print(f'\n✅ git push done!\n')
-        except Exception as e:
-            raise GitError.operation_failed(
-                operation="push",
-                error=str(e),
-                details=f"Error pushing to branch {current_branch}"
-            ) from e
-    
-    def status(self):
-        """
-        Shows the current status of the repository.
-        
-        Raises:
-            GitError: If there is an error getting the status
-        """
-        try:
-            self.repo.execute_git_command(GIT_COMMANDS['status'])
-            print(f'\n✅ git status done!\n')
-        except Exception as e:
-            raise GitError.operation_failed(
-                operation="status",
-                error=str(e),
-                details="Error getting repository status"
-            ) from e 
+        current_branch = self.repo.get_current_branch()
+        Helper.print_info(f"🚀 Pushing to branch: {current_branch}")
+        result = self.repo.execute_git_command(GIT_COMMANDS['push'] + ['origin', current_branch])
+        if result.returncode == 0:
+            Helper.print_success("git push completed!")
+        else:
+            Helper.print_error("Error pushing to remote repository") 
