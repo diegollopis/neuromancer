@@ -1,5 +1,3 @@
-from time import sleep
-from typing import List, Optional
 from .git_repository import GitRepository
 from config import GIT_OPERATIONS_DELAY, GIT_COMMANDS
 from utils.helper import Helper

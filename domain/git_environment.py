@@ -1,5 +1,4 @@
 from urllib import request
-import subprocess
 from typing import List
 from .git_repository import GitRepository
 from config import (
