@@ -69,7 +69,7 @@ source ~/.zshrc
 After setting up the alias, you can commit and push changes with a single line:
 
 ```
-alias commit_type commit_message
+alias_name commit_type commit_message
 ```
 
 An example would be:
@@ -88,9 +88,7 @@ alias_name_you_choose help
 ```
 
 # Contributing
-
-Contributions are welcome! Feel free to open issues or submit pull requests to enhance the functionality or fix bugs.
+Feel free to contribute to this project by submitting pull requests or opening issues.
 
 # License
-
 This project is licensed under the MIT License - see the LICENSE file for details.
